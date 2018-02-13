@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "73195069049",
+    "firebase_url": "https://satur-app.firebaseio.com",
+    "project_id": "satur-app",
+    "storage_bucket": "satur-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:73195069049:android:d286992193361212",
+        "android_client_info": {
+          "package_name": "com.contenedoressatur.android.choferesandroid"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "73195069049-m4k8irv7uv6ipv74nq62j5utnap6uf8f.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.contenedoressatur.android.choferesandroid",
+            "certificate_hash": "76c3ee6428d56e6bc4f0fe834eba766d757c03e5"
+          }
+        },
+        {
+          "client_id": "73195069049-ud84n4e9rej40vvo9q7i7ed924me9996.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC8hblPQay0PewFwoEbCuD8XP6z7Vd2jqE"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "73195069049-ud84n4e9rej40vvo9q7i7ed924me9996.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
