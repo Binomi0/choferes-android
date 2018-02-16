@@ -450,14 +450,14 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                     System.out.println("email: " + email);
 
                     Intent loggedIn = new Intent(LoginActivity.this, MainActivity.class);
-                    loggedIn.putExtra("Nombre", name);
-                    loggedIn.putExtra("Email", email);
+                    loggedIn.putExtra("nombre", name);
+                    loggedIn.putExtra("email", email);
                     startActivity(loggedIn);
                 } else {
-                    System.out.println("NO TENGO USUARIO DE FIREBASE");
+                    System.out.println("TENGO USUARIO DE FIREBASE, debería cambiar de activity aquí?");
                 }
             } else {
-                System.out.println("No tengo usuario de Firebase");
+                System.out.println("La contraseña es incorrecta");
 
                 mPasswordView.setError(getString(R.string.error_incorrect_password));
                 mPasswordView.requestFocus();

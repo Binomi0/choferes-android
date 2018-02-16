@@ -1,25 +1,42 @@
 package com.contenedoressatur.android.choferesandroid;
 
+import android.content.Context;
 import android.content.Intent;
 
+import android.media.Image;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.content.Intent;
 import android.net.Uri;
+import android.widget.Toast;
+
+import org.w3c.dom.Text;
 
 import java.lang.String;
+import java.lang.reflect.Array;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity  {
 
     private TextView mTextMessage;
     private TextView mTextEmail;
     private String nombre;
     private String email;
+    ListView listView;
+
+    String[] valores = new String[] { "Nombre", "Direccion", "Pedido", "Fecha" };
 
     private Bundle parametros;
 
@@ -32,10 +49,7 @@ public class MainActivity extends AppCompatActivity {
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
             switch (item.getItemId()) {
                 case R.id.navigation_home:
-                    System.out.println("EMAIL: " + email);
-//                    mTextMessage.setText(email);
-                    mTextMessage.setText(R.string.title_home);
-
+                    cargarContenidoHome();
                     return true;
                 case R.id.navigation_dashboard:
 //                    mTextMessage.setText(email);
@@ -53,6 +67,13 @@ public class MainActivity extends AppCompatActivity {
             return false;
         }
     };
+
+    private void cargarContenidoHome(){
+        System.out.println("EMAIL: " + email);
+        mTextEmail.setText(email);
+        mTextMessage.setText(R.string.title_home);
+
+    }
 
     void showHomeView(){
         Intent intent = new Intent(Intent.ACTION_SEND);
@@ -79,16 +100,28 @@ public class MainActivity extends AppCompatActivity {
         // Recoger parametros
         if (parametros != null) {
             System.out.println("Tengo ExtraData " + parametros);
-            System.out.println("Tengo ExtraData " + parametros.getString("email"));
+            System.out.println("ExtraData Email: " + parametros.getString("email"));
             email = parametros.getString("email");
             mTextEmail.setText(email);
         } else {
+            System.out.println("No tengo extradata");
             return;
         }
 
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
+        // LISTA
+        listView = (ListView) findViewById(R.id.lista_pedidos);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_expandable_list_item_1, valores);
+
+        listView.setAdapter(adapter);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+                Toast.makeText(getApplicationContext(), "Posicion"+position, Toast.LENGTH_SHORT ).show();
+            }
+        });
     }
 
 
@@ -108,4 +141,10 @@ public class MainActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+
 }
+
+
+
+
+
