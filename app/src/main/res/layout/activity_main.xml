@@ -34,12 +34,20 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="Listado de Pedidos"
+        android:gravity="center"
+        android:shadowColor="@color/colorPrimaryDark"
+        android:text="@string/listado_de_pedidos"
         android:textAlignment="center"
         android:textColor="@color/colorPrimary"
-        android:shadowColor="@color/colorPrimaryDark"
-        android:textSize="22dp"
+        android:textSize="22sp"
         app:layout_constraintTop_toBottomOf="@+id/message" />
+
+    <ListView
+        android:id="@+id/lista_pedidos"
+        style="@style/Widget.AppCompat.ListView.DropDown"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_marginTop="80dp" />
 
     <android.support.design.widget.BottomNavigationView
         android:id="@+id/navigation"
@@ -51,12 +59,5 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:menu="@menu/navigation" />
-
-    <ListView
-        android:id="@+id/lista_pedidos"
-        style="@style/Widget.AppCompat.ListView.DropDown"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_marginTop="80dp" />
 
 </android.support.constraint.ConstraintLayout>

@@ -15,28 +15,48 @@
         android:src="@drawable/common_full_open_on_phone"/>
 
     <TextView
-        android:id="@+id/titulo"
+        android:id="@+id/address"
         android:layout_width="match_parent"
         android:layout_height="26dp"
-        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
-        android:ellipsize="marquee"
-        android:singleLine="true"
-        android:text="Descripcion"
-        android:textSize="12sp"/>
+        android:text="Dirección de entrega del contenedor"
+        android:textSize="16sp" />
 
     <TextView
-        android:id="@+id/subtitulo"
-        android:layout_width="match_parent"
+        android:id="@+id/product"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/titulo"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:text="Descripción del producto"
+        android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/id"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/address"
+        android:layout_toLeftOf="@+id/status"
+        android:layout_toStartOf="@+id/status"
+        android:ellipsize="marquee"
+        android:singleLine="true"
+        android:text="@string/_0000"
+        android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/address"
+        android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true"
-        android:layout_alignWithParentIfMissing="true"
-        android:layout_toRightOf="@+id/icon"
-        android:gravity="center_vertical"
-        android:text="Contenedor de 5m en alicante"
-        android:textSize="16sp"/>
+        android:gravity="end"
+        android:text="Estado"
+        android:textAlignment="viewEnd"
+        android:textSize="12sp" />
 
 </RelativeLayout>
 

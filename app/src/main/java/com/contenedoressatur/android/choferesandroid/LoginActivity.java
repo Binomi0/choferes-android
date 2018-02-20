@@ -22,6 +22,7 @@ import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.util.Log;
 import android.text.TextUtils;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -383,8 +384,10 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "signInWithEmail:failure", task.getException());
-                            Toast.makeText(LoginActivity.this, "Authentication failed.",
-                                    Toast.LENGTH_SHORT).show();
+                            Toast toast =  Toast.makeText(LoginActivity.this, "Authentication failed.",
+                                    Toast.LENGTH_SHORT);
+                            toast.setGravity(Gravity.TOP|Gravity.CENTER, 0, 0);
+                            toast.show();
                             // onPostExecute(false);
                         }
                     }
@@ -392,7 +395,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
            // TODO: register the new account here.
             FirebaseUser currentUser = mAuth.getCurrentUser();
-            if ( currentUser != null ) {
+            if ( currentUser == null ) {
                 registerNewUser(mEmail, mPassword);
             }
             return true;
@@ -454,7 +457,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                     loggedIn.putExtra("email", email);
                     startActivity(loggedIn);
                 } else {
-                    System.out.println("TENGO USUARIO DE FIREBASE, debería cambiar de activity aquí?");
+                    System.out.println("El usuario de firebase es: " + user);
                 }
             } else {
                 System.out.println("La contraseña es incorrecta");
