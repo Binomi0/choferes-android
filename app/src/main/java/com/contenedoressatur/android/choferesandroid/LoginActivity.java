@@ -108,24 +108,24 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-            currentUser = firebaseAuth.getCurrentUser();
-            if (currentUser != null) {
-                // User is signed in
-                Log.i(TAG, "onAuthStateChanged:signed_in:" + currentUser.getUid());
-                String name = currentUser.getDisplayName();
-                String email = currentUser.getEmail();
-                Intent loggedIn = new Intent(LoginActivity.this, MainActivity.class);
-                if (!name.isEmpty()) {
-                    loggedIn.putExtra("nombre", name);
+                currentUser = firebaseAuth.getCurrentUser();
+                if (currentUser != null) {
+                    // User is signed in
+                    Log.i(TAG, "onAuthStateChanged:signed_in:" + currentUser.getUid());
+                    String name = currentUser.getDisplayName();
+                    String email = currentUser.getEmail();
+                    Intent loggedIn = new Intent(LoginActivity.this, MainActivity.class);
+                    if (!name.isEmpty()) {
+                        loggedIn.putExtra("nombre", name);
+                    }
+                    if (!email.isEmpty()) {
+                        loggedIn.putExtra("email", email);
+                    }
+                    startActivity(loggedIn);
+                } else {
+                    // User is signed out
+                    Log.i(TAG, "onAuthStateChanged:signed_out");
                 }
-                if (!email.isEmpty()) {
-                    loggedIn.putExtra("email", email);
-                }
-                startActivity(loggedIn);
-            } else {
-                // User is signed out
-                Log.i(TAG, "onAuthStateChanged:signed_out");
-            }
             }
         };
     }
@@ -133,15 +133,15 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     @Override
     public void onStart() {
         super.onStart();
+        Log.i(TAG,"onStart");
         // Check if user is signed in (non-null) and update UI accordingly.
 
         mAuthListener.onAuthStateChanged(mAuth);
         if ( currentUser != null) {
-            System.out.println("CURRENT Email: " + currentUser.getEmail());
-            System.out.println("CURRENT displayName: " + currentUser.getDisplayName());
+            Log.i(TAG,"CURRENT Email: " + currentUser.getEmail());
 
         } else {
-            System.out.println("EL USUARIO ES NULL");
+            Log.i(TAG,"EL USUARIO ES NULL");
         }
     }
 

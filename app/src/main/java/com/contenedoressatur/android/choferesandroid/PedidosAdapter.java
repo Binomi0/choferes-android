@@ -1,5 +1,6 @@
 package com.contenedoressatur.android.choferesandroid;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -9,7 +10,12 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
+import java.util.SimpleTimeZone;
 
 /**
  * Created by user on 18/02/2018.
@@ -18,7 +24,6 @@ import java.util.ArrayList;
 public class PedidosAdapter extends ArrayAdapter<Pedido> {
 
     private static final String TAG = PedidosAdapter.class.getSimpleName();
-    static ArrayList<Pedido> pedidos;
 
     public PedidosAdapter (Context context, ArrayList<Pedido> nuevosPedidos) {
         super(context, 0 , nuevosPedidos);
@@ -37,13 +42,15 @@ public class PedidosAdapter extends ArrayAdapter<Pedido> {
         TextView id = (TextView) convertView.findViewById(R.id.id);
         TextView address = (TextView) convertView.findViewById(R.id.address);
         TextView status = (TextView) convertView.findViewById(R.id.status);
-        TextView getFechaPedido = (TextView) convertView.findViewById(R.id.fecha);
+        TextView fechaPedido = (TextView) convertView.findViewById(R.id.fecha);
 
         product.setText(pedido.getProduct());
         id.setText(pedido.getOrderId());
         address.setText(pedido.getAddress());
         status.setText(pedido.getStatus());
-        getFechaPedido.setText(pedido.getFechaPedido());
+
+        String text = "Pedido el " + String.valueOf(pedido.getFechaPedido());
+        fechaPedido.setText(text);
 
         return convertView;
     }

@@ -1,6 +1,7 @@
 package com.contenedoressatur.android.choferesandroid;
 
 import android.app.ActivityManager;
+import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.ArrayAdapter;
@@ -16,7 +17,10 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 /**
  *
@@ -28,41 +32,42 @@ import java.util.ArrayList;
  */
 
 public class PedidosController {
-    static private String status;
+    private static final String TAG = PedidosController.class.getSimpleName();
+
 
     static ArrayList<Pedido> pedidos = new ArrayList<>();
     static ArrayList<Pedido> cambios = new ArrayList<>();
     static ArrayList<Pedido> puestas = new ArrayList<>();
     static ArrayList<Pedido> retiradas = new ArrayList<>();
+    static PedidosAdapter adapter;
 
-    public PedidosController(String status) {
-        this.status = status;
-        Log.i("PedidoController", "El estatus del controlador es " + status);
+    public PedidosController() {
+        Log.i("PedidoController", "El estatus del controlador es ");
     }
 
-    static void cargarTodosPedidos() {
+    static void cargarTodosPedidos(String chofer) {
         Log.i("PedidoController", "cargarTodosPedidos()");
 //        new JSONTask().execute("https://contenedoressatur.es/wp-json/wc/v2/orders?per_page=100&orderby=date", "all");
-        new JSONTask().execute("https://contenedoressatur.es/wp-json/wc/v2/orders?filter[meta_key]=_assigned_chofer_field&filter[meta_value]=adolfo");
+        new JSONTask().execute("https://contenedoressatur.es/wp-json/pedidos/v1/chofer/" + chofer);
     }
 
-    static ArrayList<Pedido> getPedidos(String requestStatus) {
-        Log.i("PedidoController", "El estatus del pedido es " + status + " y estas pasando " + requestStatus);
-        if (requestStatus != null) {
-            status = requestStatus;
-            if (requestStatus.equals("retirando")) {
-                Log.i("PedidoController", "getPedidos() => " + requestStatus);
-                return retiradas;
-            }
-            if (requestStatus.equals("cambiando")) {
-                Log.i("PedidoController", "getPedidos() => " + requestStatus);
-                return cambios;
-            }
-            if (requestStatus.equals("processing")) {
-                Log.i("PedidoController", "getPedidos() => " + requestStatus);
-                return puestas;
-            }
-        }
+    static ArrayList<Pedido> getPedidos() {
+//        Log.i("PedidoController", "El estatus del pedido es " + status + " y estas pasando " + requestStatus);
+//        if (requestStatus != null) {
+//            status = requestStatus;
+//            if (requestStatus.equals("retirando")) {
+//                Log.i("PedidoController", "getPedidos() => " + requestStatus);
+//                return retiradas;
+//            }
+//            if (requestStatus.equals("cambiando")) {
+//                Log.i("PedidoController", "getPedidos() => " + requestStatus);
+//                return cambios;
+//            }
+//            if (requestStatus.equals("processing")) {
+//                Log.i("PedidoController", "getPedidos() => " + requestStatus);
+//                return puestas;
+//            }
+//        }
 
         return pedidos;
     }
@@ -80,7 +85,8 @@ public class PedidosController {
         } else {
             for (Pedido pedido: response
                  ) {
-                Log.i("[PEDIDOS CONTROLLER","response => " + pedido.getStatus());
+                Log.i("[PEDIDOS CONTROLLER","status => " + pedido.getStatus());
+                Log.i("[PEDIDOS CONTROLLER","ID => " + pedido.getOrderId());
             }
             Log.i("[JSONTask] => pedidos","El array NO contiene el pedido");
             setPedidos(response);
@@ -133,40 +139,17 @@ public class PedidosController {
                 if (dataArray.length() > 0) {
                     for (int i=0; i<dataArray.length(); i++) {
                         String product;
+
                         JSONObject pedido = dataArray.getJSONObject(i);
                         int id = pedido.getInt("id");
-                        String fechaPedido = pedido.getString("date_created");
+                        JSONObject fecha = pedido.getJSONObject("fecha");
+                        String fechaPedido = fecha.getString("date");
+                        String producto = pedido.getString("product");
+                        String address = pedido.getString("address");
+                        String status = pedido.getString("status");
 
-                        JSONArray lineItems = pedido.getJSONArray("line_items");
-                        if (!lineItems.isNull(0)) {
-                            JSONObject productos = lineItems.getJSONObject(0);
-                            product = productos.getString("name");
-                        } else {
-                            product = "No hay productos en el pedido";
-                        }
+                        nuevospedidos.add(new Pedido(producto, id, address, fechaPedido, status));
 
-                        JSONObject shipping = pedido.getJSONObject("shipping");
-                        String address = shipping.getString("address_1");
-
-                        status = pedido.getString("status");
-
-                        if (status.equals("processing")) {
-                            puestas.add(new Pedido(product, id, address, fechaPedido, status));
-//                            return puestas;
-                        } else
-                        if (status.equals("cambiando")) {
-                            cambios.add(new Pedido(product, id, address, fechaPedido, status));
-//                            return cambios;
-                        } else
-                        if (status.equals("retirando")) {
-                            retiradas.add(new Pedido(product, id, address, fechaPedido, status));
-//                            return retiradas;
-                        } else {
-                            nuevospedidos.add(new Pedido(product, id, address, fechaPedido, status));
-                        }
-
-
-//                        pedidos.add(new Pedido(product, id, address, fechaPedido));
                     }
                 }
 

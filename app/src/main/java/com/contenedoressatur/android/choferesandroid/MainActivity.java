@@ -26,7 +26,6 @@ public class MainActivity extends AppCompatActivity  {
 
     private TextView mTextMessage;
     private TextView mTextEmail;
-    private String nombre;
     private String email;
     ListView listView;
     PedidosAdapter adapter;
@@ -49,7 +48,8 @@ public class MainActivity extends AppCompatActivity  {
         setContentView(R.layout.activity_main);
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
-        PedidosController.cargarTodosPedidos();
+        String nombre = "Adolfo";
+        PedidosController.cargarTodosPedidos(nombre);
 
         setTitle("Listado de Pedidos");
         mTextMessage = (TextView) findViewById(R.id.message);
@@ -58,7 +58,7 @@ public class MainActivity extends AppCompatActivity  {
 //        View header = getLayoutInflater().inflate(R.layout.header, null);
 //        listView.addHeaderView(header);
 
-        pedidoArrayList = PedidosController.getPedidos("todos");
+        pedidoArrayList = PedidosController.getPedidos();
         adapter = new PedidosAdapter(this, pedidoArrayList);
         listView.setAdapter(adapter);
 
@@ -90,11 +90,11 @@ public class MainActivity extends AppCompatActivity  {
 
         if (status.equals("todos")) {
             Log.i(TAG,"Cargando: " + status);
-            pedidoArrayList = PedidosController.getPedidos(null);
+            pedidoArrayList = PedidosController.getPedidos();
 
         } else {
             Log.i(TAG,"cargarContenido() => Cargando: " + status);
-            pedidoArrayList = PedidosController.getPedidos(status);
+            pedidoArrayList = PedidosController.getPedidos();
 
         }
 
