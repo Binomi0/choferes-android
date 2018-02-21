@@ -7,12 +7,13 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.TimeZone;
 
 /**
  * Created by user on 18/02/2018.
  */
 
-public class Pedido {
+class Pedido {
     private static final String TAG = Pedido.class.getSimpleName();
 
     private String product;
@@ -21,7 +22,7 @@ public class Pedido {
     private String fechaPedido;
     private String status;
 
-    public Pedido(String product, Integer id, String address, String fechaPedido, String status) {
+    Pedido(String product, Integer id, String address, String fechaPedido, String status) {
         this.product = product;
         this.orderId = id;
         this.address = address;
@@ -30,30 +31,30 @@ public class Pedido {
 
     }
 
-    public String getProduct() {
+    String getProduct() {
         return product;
     }
 
-    public String getOrderId() {
+    String getOrderId() {
         return String.valueOf(orderId);
     }
 
-    public String getAddress() {
+    String getAddress() {
         return address;
     }
 
-    public String getFechaPedido() {
+    String getFechaPedido() {
         return fechaPedido;
     }
 
-    public String getStatus() {
+    String getStatus() {
         return status;
     }
 
     private String getFormattedDate(String dateToFormat) {
 
         SimpleDateFormat outputPattern = new SimpleDateFormat("EEEE, d 'de' MMMM 'a las' kk:mm", new Locale("es"));
-        @SuppressLint("SimpleDateFormat") SimpleDateFormat inputPatter = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss.000000");
+        SimpleDateFormat inputPatter = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss.000000", new Locale("es"));
 
         Date date = null;
         String fecha = null;

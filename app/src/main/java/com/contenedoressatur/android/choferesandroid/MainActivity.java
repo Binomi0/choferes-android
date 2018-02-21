@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -25,22 +26,11 @@ public class MainActivity extends AppCompatActivity  {
     private static final String TAG = MainActivity.class.getSimpleName();
 
     private TextView mTextMessage;
-    private TextView mTextEmail;
-    private String email;
     ListView listView;
     PedidosAdapter adapter;
     ArrayList<Pedido> pedidoArrayList;
 
-    String[] valores = new String[] { "Nombre", "Direccion", "Pedido", "Fecha" };
-    String[] puestas = new String[] { "puestas 1", "puestas 2", "puestas 3", "puestas 4" };
-    String[] cambios = new String[] { "cambio 1", "cambio 2", "cambio 3", "cambio 4" };
-    String[] retiradas = new String[] { "retiradas 1", "retiradas 2", "retiradas 3", "retiradas 4" };
-
-    private Bundle parametros;
-
     static final int PICK_CONTACT_REQUEST = 1;  // The request code
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,52 +41,56 @@ public class MainActivity extends AppCompatActivity  {
         String nombre = "Adolfo";
         PedidosController.cargarTodosPedidos(nombre);
 
-        setTitle("Listado de Pedidos");
-        mTextMessage = (TextView) findViewById(R.id.message);
-        mTextEmail = (TextView) findViewById(R.id.email);
-        listView = (ListView) findViewById(R.id.lista_pedidos);
-//        View header = getLayoutInflater().inflate(R.layout.header, null);
-//        listView.addHeaderView(header);
+        setTitle("Contenedores Satur");
+        mTextMessage = findViewById(R.id.message);
+        TextView mTextEmail = findViewById(R.id.email);
+        listView = findViewById(R.id.lista_pedidos);
 
         pedidoArrayList = PedidosController.getPedidos();
         adapter = new PedidosAdapter(this, pedidoArrayList);
         listView.setAdapter(adapter);
 
 
-        parametros = this.getIntent().getExtras();
+        Bundle parametros = this.getIntent().getExtras();
 
-        // Recoger parametros
+        // Recoger parametros pasados desde loginactivity
         if (parametros != null) {
             Log.i("[MAINACTIVITY] Params", "[ExtraData] $email: " + parametros.getString("email"));
-            email = parametros.getString("email");
+            String email = parametros.getString("email");
             mTextEmail.setText(email);
         } else {
             Log.i("[MAINACTIVITY]","No tengo extradata");
             return;
         }
 
-        BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
+        BottomNavigationView navigation = findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
 
-    private void cargarContenido(String status) {
+        AdapterView.OnItemClickListener listener = new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> listView, View view, int i, long l) {
+                Intent detallesPedidos = new Intent(MainActivity.this, MapsActivity.class);
+                startActivity(detallesPedidos);
+            }
+        };
+        listView.setOnItemClickListener(listener);
+    }
+
+    private void cargarContenido() {
         if (adapter == null) {
             Log.i(TAG,"actualizarListadoPedidos => Adapter es Null");
             adapter = new PedidosAdapter(this, pedidoArrayList);
             listView.setAdapter(adapter);
         }
 
-        if (status.equals("todos")) {
-            Log.i(TAG,"Cargando: " + status);
-            pedidoArrayList = PedidosController.getPedidos();
+        pedidoArrayList = PedidosController.getPedidos();
 
-        } else {
-            Log.i(TAG,"cargarContenido() => Cargando: " + status);
-            pedidoArrayList = PedidosController.getPedidos();
-
-        }
 
         if (pedidoArrayList.isEmpty()) {
             Log.i(TAG,"cargarContenido() => ArrayList: " + pedidoArrayList.size());
@@ -119,21 +113,13 @@ public class MainActivity extends AppCompatActivity  {
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
             switch (item.getItemId()) {
-                case R.id.navigation_todos:
-                    mTextMessage.setText(R.string.title_todos);
-                    cargarContenido("todos");
+                case R.id.navigation_home:
+                    mTextMessage.setText(R.string.title_home);
+                    cargarContenido();
                     return true;
-                case R.id.navigation_retiradas:
-                    mTextMessage.setText(R.string.title_retiradas);
-                    cargarContenido("retirando");
-                    return true;
-                case R.id.navigation_cambios:
-                    mTextMessage.setText(R.string.title_cambios);
-                    cargarContenido("cambiando");
-                    return true;
-                case R.id.navigation_puestas:
-                    mTextMessage.setText(R.string.title_puestas);
-                    cargarContenido("processing");
+                case R.id.navigation_pedidos:
+                    mTextMessage.setText(R.string.title_pedidos);
+                    cargarContenido();
                     return true;
             }
             return false;
@@ -152,8 +138,8 @@ public class MainActivity extends AppCompatActivity  {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
-        if (id == R.id.navigation_todos) {
-            Log.i("[MAINACTIVITY] OnOption","Capturamos el clic del boton: " + R.id.navigation_todos);
+        if (id == R.id.navigation_home) {
+            Log.i("[MAINACTIVITY] OnOption","Capturamos el clic del boton: " + R.id.navigation_home);
         }
         return super.onOptionsItemSelected(item);
     }
