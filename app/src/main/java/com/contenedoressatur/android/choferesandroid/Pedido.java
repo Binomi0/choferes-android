@@ -10,12 +10,14 @@ public class Pedido {
     private int orderId;
     private String address;
     private String fechaPedido;
+    private String status;
 
-    public Pedido(String product, Integer id, String address, String fechaPedido) {
+    public Pedido(String product, Integer id, String address, String fechaPedido, String status) {
         this.product = product;
         this.orderId = id;
         this.address = address;
         this.fechaPedido = fechaPedido;
+        this.status = status;
     }
 
     public String getProduct() {
@@ -32,6 +34,10 @@ public class Pedido {
 
     public String getFechaPedido() {
         return fechaPedido;
+    }
+
+    public String getStatus() {
+        return status;
     }
 
 }

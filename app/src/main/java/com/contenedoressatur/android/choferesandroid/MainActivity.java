@@ -22,6 +22,8 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity  {
 
+    private static final String TAG = MainActivity.class.getSimpleName();
+
     private TextView mTextMessage;
     private TextView mTextEmail;
     private String nombre;
@@ -39,15 +41,87 @@ public class MainActivity extends AppCompatActivity  {
 
     static final int PICK_CONTACT_REQUEST = 1;  // The request code
 
+
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
+        PedidosController.cargarTodosPedidos();
+
+        setTitle("Listado de Pedidos");
+        mTextMessage = (TextView) findViewById(R.id.message);
+        mTextEmail = (TextView) findViewById(R.id.email);
+        listView = (ListView) findViewById(R.id.lista_pedidos);
+//        View header = getLayoutInflater().inflate(R.layout.header, null);
+//        listView.addHeaderView(header);
+
+        pedidoArrayList = PedidosController.getPedidos("todos");
+        adapter = new PedidosAdapter(this, pedidoArrayList);
+        listView.setAdapter(adapter);
+
+
+        parametros = this.getIntent().getExtras();
+
+        // Recoger parametros
+        if (parametros != null) {
+            Log.i("[MAINACTIVITY] Params", "[ExtraData] $email: " + parametros.getString("email"));
+            email = parametros.getString("email");
+            mTextEmail.setText(email);
+        } else {
+            Log.i("[MAINACTIVITY]","No tengo extradata");
+            return;
+        }
+
+        BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
+        navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+
+    }
+
+
+    private void cargarContenido(String status) {
+        if (adapter == null) {
+            Log.i(TAG,"actualizarListadoPedidos => Adapter es Null");
+            adapter = new PedidosAdapter(this, pedidoArrayList);
+            listView.setAdapter(adapter);
+        }
+
+        if (status.equals("todos")) {
+            Log.i(TAG,"Cargando: " + status);
+            pedidoArrayList = PedidosController.getPedidos(null);
+
+        } else {
+            Log.i(TAG,"cargarContenido() => Cargando: " + status);
+            pedidoArrayList = PedidosController.getPedidos(status);
+
+        }
+
+        if (pedidoArrayList.isEmpty()) {
+            Log.i(TAG,"cargarContenido() => ArrayList: " + pedidoArrayList.size());
+            adapter.clear();
+        }
+
+//        adapter = new PedidosAdapter(this, pedidoArrayList);
+        Log.i(TAG,"actualizarListadoPedidos => Adapter ok");
+        Log.i(TAG,"listaPedidos => " + pedidoArrayList.size());
+        adapter.clear();
+        adapter.notifyDataSetChanged();
+        adapter.addAll(pedidoArrayList);
+
+    }
+
+
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
 
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
             switch (item.getItemId()) {
-                case R.id.navigation_home:
-                    mTextMessage.setText(R.string.title_home);
-                    cargarContenido("processing");
+                case R.id.navigation_todos:
+                    mTextMessage.setText(R.string.title_todos);
+                    cargarContenido("todos");
                     return true;
                 case R.id.navigation_retiradas:
                     mTextMessage.setText(R.string.title_retiradas);
@@ -57,92 +131,14 @@ public class MainActivity extends AppCompatActivity  {
                     mTextMessage.setText(R.string.title_cambios);
                     cargarContenido("cambiando");
                     return true;
+                case R.id.navigation_puestas:
+                    mTextMessage.setText(R.string.title_puestas);
+                    cargarContenido("processing");
+                    return true;
             }
             return false;
         }
     };
-
-
-    private void actualizarListadoPedidos(ArrayAdapter adapterPedidos, ArrayList<Pedido> listPedidos) {
-        adapter.clear();
-        adapter.addAll(listPedidos);
-        adapter.notifyDataSetChanged();
-        listView.setAdapter(adapterPedidos);
-//        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-//            @Override
-//            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-//                Toast toast = Toast.makeText(getApplicationContext(), "Posicion: "+position, Toast.LENGTH_SHORT );
-//                toast.setGravity(Gravity.BOTTOM|Gravity.CENTER, 0, 0);
-//                toast.show();
-//            }
-//        });
-    }
-
-//    private void clearAdapter() {
-//        adapter.clear();
-//    }
-
-    private void cargarContenido(String status) {
-
-        System.out.println("Cargando: " + status);
-        pedidoArrayList = PedidosController.getPedidos(status);
-
-        if (pedidoArrayList.isEmpty()) {
-            return;
-        }
-
-        actualizarListadoPedidos(adapter, pedidoArrayList);
-    }
-
-
-    void showHomeView(){
-        Intent intent = new Intent(Intent.ACTION_SEND);
-        intent.putExtra(Intent.EXTRA_EMAIL, new String[] { "adolfo@contenedoressatur.com" });
-        startActivity(intent);
-    }
-
-    private void pickContact() {
-        // Create an intent to "pick" a contact, as defined by the content provider URI
-        Intent intent = new Intent(Intent.ACTION_PICK, Uri.parse("content://contacts"));
-        startActivityForResult(intent, PICK_CONTACT_REQUEST);
-    }
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-        StrictMode.setThreadPolicy(policy);
-
-        setTitle("Contenedores SATUR");
-        mTextMessage = (TextView) findViewById(R.id.message);
-        mTextEmail = (TextView) findViewById(R.id.email);
-
-        listView = (ListView) findViewById(R.id.lista_pedidos);
-        pedidoArrayList = new ArrayList<>(PedidosController.getPedidos(null));
-        adapter = new PedidosAdapter(this, pedidoArrayList);
-        listView.setAdapter(adapter);
-
-//        View header = getLayoutInflater().inflate(R.layout.header, null);
-//        listView.addHeaderView(header);
-
-        parametros = this.getIntent().getExtras();
-
-        // Recoger parametros
-        if (parametros != null) {
-            Log.i("Parametros de login", "[ExtraData] $email: " + parametros.getString("email"));
-            email = parametros.getString("email");
-            mTextEmail.setText(email);
-        } else {
-            System.out.println("No tengo extradata");
-            return;
-        }
-
-        BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
-        navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
-
-        cargarContenido("pending");
-    }
 
 
     @Override
@@ -156,15 +152,25 @@ public class MainActivity extends AppCompatActivity  {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
-        if (id == R.id.navigation_home) {
-            System.out.println("Capturamos el clic del boton: " + R.id.navigation_home);
+        if (id == R.id.navigation_todos) {
+            Log.i("[MAINACTIVITY] OnOption","Capturamos el clic del boton: " + R.id.navigation_todos);
         }
         return super.onOptionsItemSelected(item);
     }
 
 
 
+    void showHomeView(){
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.putExtra(Intent.EXTRA_EMAIL, new String[] { "adolfo@contenedoressatur.com" });
+        startActivity(intent);
+    }
 
+    private void pickContact() {
+        // Create an intent to "pick" a contact, as defined by the content provider URI
+        Intent intent = new Intent(Intent.ACTION_PICK, Uri.parse("content://contacts"));
+        startActivityForResult(intent, PICK_CONTACT_REQUEST);
+    }
 
 
 

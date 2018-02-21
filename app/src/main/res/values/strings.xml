@@ -13,10 +13,15 @@
     <string name="permission_rationale">"Para autocompletar, la app requiere acceso a contactos."
     </string>
     <string name="title_activity_main">MainActivity</string>
-    <string name="title_home">Puestas</string>
+    <string name="title_puestas">Puestas</string>
+    <string name="title_todos">Todos</string>
     <string name="title_retiradas">Retiradas</string>
     <string name="title_cambios">Cambios</string>
     <string name="user_email">Correo Electrónico</string>
     <string name="listado_de_pedidos">Listado de Pedidos</string>
-    <string name="_0000">\@string/0000</string>
+    <string name="order_address">Dirección de entrega</string>
+    <string name="order_product">Nombre del  producto</string>
+    <string name="order_id">Nº Pedido</string>
+    <string name="order_status">Estado</string>
+    <string name="order_date">Fecha</string>
 </resources>

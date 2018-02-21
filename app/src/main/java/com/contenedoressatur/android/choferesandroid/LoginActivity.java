@@ -54,21 +54,13 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     /**
      * Id to identity READ_CONTACTS permission request.
      */
-    private static final String TAG = "LoginActivity";
+    private static final String TAG = "[LoginActivity] =>";
     private static final int REQUEST_READ_CONTACTS = 0;
 
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
     private FirebaseUser currentUser;
 
-
-    /**
-     * A dummy authentication store containing known user names and passwords.
-     * TODO: remove after connecting to a real authentication system.
-     */
-    private static final String[] DUMMY_CREDENTIALS = new String[]{
-            "anunciossatur@gmail.com:mWBeDlNbQr", "bar@example.com:world"
-    };
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
@@ -116,21 +108,24 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                currentUser = firebaseAuth.getCurrentUser();
-                if (currentUser != null) {
-                    // User is signed in
-                    Log.d(TAG, "onAuthStateChanged:signed_in:" + currentUser.getUid());
-                    String name = currentUser.getDisplayName();
-                    String email = currentUser.getEmail();
-                    Intent loggedIn = new Intent(LoginActivity.this, MainActivity.class);
+            currentUser = firebaseAuth.getCurrentUser();
+            if (currentUser != null) {
+                // User is signed in
+                Log.i(TAG, "onAuthStateChanged:signed_in:" + currentUser.getUid());
+                String name = currentUser.getDisplayName();
+                String email = currentUser.getEmail();
+                Intent loggedIn = new Intent(LoginActivity.this, MainActivity.class);
+                if (!name.isEmpty()) {
                     loggedIn.putExtra("nombre", name);
-                    loggedIn.putExtra("email", email);
-                    startActivity(loggedIn);
-                } else {
-                    // User is signed out
-                    System.out.println("OnCreate, NO tengo usuario");
-                    Log.d(TAG, "onAuthStateChanged:signed_out");
                 }
+                if (!email.isEmpty()) {
+                    loggedIn.putExtra("email", email);
+                }
+                startActivity(loggedIn);
+            } else {
+                // User is signed out
+                Log.i(TAG, "onAuthStateChanged:signed_out");
+            }
             }
         };
     }
@@ -148,15 +143,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         } else {
             System.out.println("EL USUARIO ES NULL");
         }
-//        String name = currentUser.getDisplayName();
-//        String email = currentUser.getEmail();
-//        System.out.println("User: " + currentUser.getDisplayName());
-//        System.out.println("Email: " + currentUser.getEmail());
-//
-//        Intent loggedIn = new Intent(LoginActivity.this, MainActivity.class);
-//        loggedIn.putExtra("nombre", name);
-//        loggedIn.putExtra("email", email);
-//        startActivity(loggedIn);
     }
 
     private void populateAutoComplete() {
@@ -375,21 +361,20 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
-                            Log.d(TAG, "signInWithEmail:success");
-                            FirebaseUser user = mAuth.getCurrentUser();
-                            System.out.println("user: " + user);
-                            onPostExecute(true);
-                        } else {
-                            // If sign in fails, display a message to the user.
-                            Log.w(TAG, "signInWithEmail:failure", task.getException());
-                            Toast toast =  Toast.makeText(LoginActivity.this, "Authentication failed.",
-                                    Toast.LENGTH_SHORT);
-                            toast.setGravity(Gravity.TOP|Gravity.CENTER, 0, 0);
-                            toast.show();
-                            // onPostExecute(false);
-                        }
+                    if (task.isSuccessful()) {
+                        // Sign in success, update UI with the signed-in user's information
+                        Log.i(TAG, "signInWithEmail:isComplete?" + task.isComplete());
+                        Log.i(TAG, "userEmail" + mEmail);
+                        onPostExecute(true);
+                    } else {
+                        // If sign in fails, display a message to the user.
+                        Log.w(TAG, "signInWithEmail:failure", task.getException());
+                        Toast toast =  Toast.makeText(LoginActivity.this, "Authentication failed: result =>" + task.getResult(),
+                                Toast.LENGTH_SHORT);
+                        toast.setGravity(Gravity.TOP|Gravity.CENTER, 0, 0);
+                        toast.show();
+                        onPostExecute(false);
+                    }
                     }
                 });
 
@@ -446,21 +431,23 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                     // authenticate with your backend server, if you have one. Use
                     // FirebaseUser.getToken() instead.
                     String uid = user.getUid();
-                    System.out.println("UID: " + uid);
-                    System.out.println(uid);
-                    System.out.println("name: " + name);
-                    System.out.println(name);
-                    System.out.println("email: " + email);
+                    Log.i(TAG,"UID: " + uid);
+                    Log.i(TAG,"name: " + name);
+                    Log.i(TAG,"email: " + email);
 
                     Intent loggedIn = new Intent(LoginActivity.this, MainActivity.class);
-                    loggedIn.putExtra("nombre", name);
-                    loggedIn.putExtra("email", email);
+                    if (!name.isEmpty()) {
+                        loggedIn.putExtra("nombre", name);
+                    }
+                    if (!email.isEmpty()) {
+                        loggedIn.putExtra("email", email);
+                    }
                     startActivity(loggedIn);
                 } else {
-                    System.out.println("El usuario de firebase es: " + user);
+                    Log.i(TAG,"No tengo usuario de firebase: null => " + user);
                 }
             } else {
-                System.out.println("La contraseña es incorrecta");
+                Log.i(TAG,"La contraseña es incorrecta");
 
                 mPasswordView.setError(getString(R.string.error_incorrect_password));
                 mPasswordView.requestFocus();

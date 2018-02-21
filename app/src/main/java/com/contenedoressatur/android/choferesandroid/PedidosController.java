@@ -40,19 +40,27 @@ public class PedidosController {
         Log.i("PedidoController", "El estatus del controlador es " + status);
     }
 
-    static ArrayList<Pedido> getPedidos(String newStatus) {
-        if (status == null) {
-            Log.i("PedidoController", "El estatus del pedido es " + status + " y estas pasando " + newStatus);
-            status = newStatus;
-        } else {
-            if (!status.equals(newStatus)) {
-                Log.i("PedidoController", "El estatus del pedido es " + status + " y estas pasando " + newStatus);
-                pedidos = new ArrayList<>();
-                if (pedidos.isEmpty()) {
-                    Log.i("PedidoController", "pedidos esta vacio, lanzando consulta HTTPS");
-                    new JSONTask().execute("https://contenedoressatur.es/wp-json/wc/v2/orders?status=" + status);
-                }
-                status = newStatus;
+    static void cargarTodosPedidos() {
+        Log.i("PedidoController", "cargarTodosPedidos()");
+//        new JSONTask().execute("https://contenedoressatur.es/wp-json/wc/v2/orders?per_page=100&orderby=date", "all");
+        new JSONTask().execute("https://contenedoressatur.es/wp-json/wc/v2/orders?filter[meta_key]=_assigned_chofer_field&filter[meta_value]=adolfo");
+    }
+
+    static ArrayList<Pedido> getPedidos(String requestStatus) {
+        Log.i("PedidoController", "El estatus del pedido es " + status + " y estas pasando " + requestStatus);
+        if (requestStatus != null) {
+            status = requestStatus;
+            if (requestStatus.equals("retirando")) {
+                Log.i("PedidoController", "getPedidos() => " + requestStatus);
+                return retiradas;
+            }
+            if (requestStatus.equals("cambiando")) {
+                Log.i("PedidoController", "getPedidos() => " + requestStatus);
+                return cambios;
+            }
+            if (requestStatus.equals("processing")) {
+                Log.i("PedidoController", "getPedidos() => " + requestStatus);
+                return puestas;
             }
         }
 
@@ -65,15 +73,17 @@ public class PedidosController {
     }
 
 
-    static void parseResponseFromRequest(ArrayList<Pedido> pedidos) {
+    private static void parseResponseFromRequest(ArrayList<Pedido> response) {
 
-        if (pedidos.contains(pedidos)) {
-            System.out.println("El array ya contiene el pedido");
-            setPedidos(pedidos);
+        if (pedidos.contains(response)) {
+            Log.i("[JSONTask] => pedidos","El array contiene " + response.size() + " elementos");
         } else {
-            System.out.println("El array NO contiene el pedido");
-            pedidos.add(new Pedido("Contenedor 5m", 6794, "Calle Ganaderos 32 SAnta Pola", "retirando"));
-            setPedidos(pedidos);
+            for (Pedido pedido: response
+                 ) {
+                Log.i("[PEDIDOS CONTROLLER","response => " + pedido.getStatus());
+            }
+            Log.i("[JSONTask] => pedidos","El array NO contiene el pedido");
+            setPedidos(response);
         }
 
     }
@@ -94,7 +104,7 @@ public class PedidosController {
 
         @Override
         protected ArrayList<Pedido> doInBackground(String... strings) {
-            System.out.println("Empezando request en background");
+            Log.i("[JSONTask] doInBackgro","Empezando request en background");
             HttpURLConnection connection = null;
             BufferedReader reader = null;
 
@@ -138,22 +148,25 @@ public class PedidosController {
                         JSONObject shipping = pedido.getJSONObject("shipping");
                         String address = shipping.getString("address_1");
 
-                        if (pedido.getString("status").equals("processing")) {
-                            puestas.add(new Pedido(product, id, address, fechaPedido));
-                            return puestas;
-                        }
-                        if (pedido.getString("status").equals("cambiando")) {
-                            cambios.add(new Pedido(product, id, address, fechaPedido));
-                            return cambios;
-                        }
-                        if (pedido.getString("status").equals("retirando")) {
-                            retiradas.add(new Pedido(product, id, address, fechaPedido));
-                            return retiradas;
+                        status = pedido.getString("status");
+
+                        if (status.equals("processing")) {
+                            puestas.add(new Pedido(product, id, address, fechaPedido, status));
+//                            return puestas;
+                        } else
+                        if (status.equals("cambiando")) {
+                            cambios.add(new Pedido(product, id, address, fechaPedido, status));
+//                            return cambios;
+                        } else
+                        if (status.equals("retirando")) {
+                            retiradas.add(new Pedido(product, id, address, fechaPedido, status));
+//                            return retiradas;
+                        } else {
+                            nuevospedidos.add(new Pedido(product, id, address, fechaPedido, status));
                         }
 
 
 //                        pedidos.add(new Pedido(product, id, address, fechaPedido));
-                        nuevospedidos.add(new Pedido(product, id, address, fechaPedido));
                     }
                 }
 
@@ -184,7 +197,7 @@ public class PedidosController {
         @Override
         protected void onPostExecute(ArrayList<Pedido> data) {
             super.onPostExecute(data);
-            System.out.println("Recibida la respuesta de la request en background");
+            Log.i("[JSONTask] onPostExecut","Recibida la respuesta de la request en background");
             parseResponseFromRequest(data);
 
         }
