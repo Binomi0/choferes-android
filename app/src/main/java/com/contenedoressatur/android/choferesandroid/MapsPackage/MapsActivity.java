@@ -7,10 +7,16 @@ import com.google.android.gms.maps.GoogleMap.OnMyLocationButtonClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMyLocationClickListener;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 
+import android.Manifest;
 import android.content.Context;
+import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
 import android.location.LocationProvider;
@@ -33,6 +39,7 @@ public class MapsActivity extends AppCompatActivity
         OnMyLocationButtonClickListener,
         OnMyLocationClickListener,
         OnMapReadyCallback,
+        GoogleMap.OnMarkerDragListener,
         GoogleMap.OnCameraIdleListener,
         ActivityCompat.OnRequestPermissionsResultCallback
 
@@ -46,6 +53,12 @@ public class MapsActivity extends AppCompatActivity
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
     private static final String TAG = MapsActivity.class.getSimpleName();
     TextView mCameraTextView;
+
+    GPSTracker gps;
+    private static final LatLng base = new LatLng(38.2109726, -0.5749218);
+    private static Marker ubicacionContenedor;
+    private static LatLng ubicacionContenedorActualizada;
+    private static LatLng ubicacionChofer;
     /**
      * Flag indicating whether a requested permission has been denied after returning in
      * {@link #onRequestPermissionsResult(int, String[], int[])}.
@@ -61,6 +74,7 @@ public class MapsActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
+        gps = new GPSTracker(MapsActivity.this);
 
         SupportMapFragment mapFragment =
                 (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
@@ -72,8 +86,8 @@ public class MapsActivity extends AppCompatActivity
     public void onMapReady(GoogleMap map) {
         mMap = map;
         mCameraTextView = (TextView) findViewById(R.id.camera_text);
-//        mMap.setOnMyLocationButtonClickListener(this);
-//        mMap.setOnMyLocationClickListener(this);
+        mMap.setOnMyLocationButtonClickListener(this);
+        mMap.setOnMyLocationClickListener(this);
         enableMyLocation();
     }
 
@@ -81,17 +95,33 @@ public class MapsActivity extends AppCompatActivity
      * Enables the My Location layer if the fine location permission has been granted.
      */
     private void enableMyLocation() {
-        GPSTracker gps = new GPSTracker(MapsActivity.this);
-        if(gps.canGetLocation()){
-            Location location = gps.getLocation();
+        if (gps.canGetLocation()) {
+//            Location location = new Location(gps.getLocation());
             // gps enabled} // return boolean true/false
-            Log.i(TAG, "GPS ENABLED" + location);
-            double latitude = gps.getLatitude();
-            double longitude = gps.getLongitude();
-            LatLng coordenadas1 = new LatLng(latitude - 0.1, longitude - 0.1);
-            LatLng coordenadas2 = new LatLng(latitude + 0.1, longitude + 0.1);
-            LatLngBounds bounds = new LatLngBounds(coordenadas1, coordenadas2);
+            Log.i(TAG, "canGetLocation => " + gps.canGetLocation());
+            double latitude = gps.getLatitude() == 0.0 ? 38.2109726 : gps.getLatitude();
+            double longitude = gps.getLongitude() == 0.0 ? -0.5749218 : gps.getLongitude();
+            LatLng coordenadas2 = new LatLng(latitude + 0.04, longitude + 0.04);
+            LatLngBounds bounds = new LatLngBounds(base, coordenadas2);
             mMap.setLatLngBoundsForCameraTarget(bounds);
+            mMap.setOnCameraIdleListener(this);
+
+            configureMarkers();
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                gps.showSettingsAlert();
+                Log.i(TAG, "isGPSEnabled => " + gps.isGPSEnabled);
+                Log.i(TAG, "isRestricted => " + gps.isRestricted());
+                Log.i(TAG, "isNetworkEnabled => " + gps.isNetworkEnabled);
+                // TODO: Consider calling
+                //    ActivityCompat#requestPermissions
+                // here to request the missing permissions, and then overriding
+                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                //                                          int[] grantResults)
+                // to handle the case where the user grants the permission. See the documentation
+                // for ActivityCompat#requestPermissions for more details.
+                return;
+            }
+            mMap.setMyLocationEnabled(true);
             Toast.makeText(getApplicationContext(), "Your Location is - \nLat: " + latitude + "\nLong: " + longitude, Toast.LENGTH_LONG).show();
         } else {
             gps.getLocation();
@@ -101,14 +131,37 @@ public class MapsActivity extends AppCompatActivity
 
     }
 
+    public void configureMarkers() {
+        // TODO: ubicacionContenedorActualizada debe provenir de la ubicacion previa del pedido (Si existe)
+        ubicacionChofer = new LatLng(gps.getLatitude(), gps.getLongitude());  // Actualizar
+        MarkerOptions markerOptions = new MarkerOptions()
+                .position(ubicacionChofer)
+                .title("Posicion Actual")
+                .snippet("Chofer")
+                .draggable(true);
+        ubicacionContenedor = mMap.addMarker(markerOptions);
+
+    }
+
     @Override
     public void onCameraIdle() {
+//        ubicacionContenedorActualizada = ubicacionContenedor.getPosition();
+//        ubicacionContenedor.setPosition(ubicacionContenedorActualizada);
         mCameraTextView.setText(mMap.getCameraPosition().toString());
     }
 
     @Override
+    public void onPointerCaptureChanged(boolean hasCapture) {
+        if (hasCapture) {
+            toast("tengo captura");
+        } else {
+            toast("No tengo captura");
+        }
+    }
+
+    @Override
     public boolean onMyLocationButtonClick() {
-        Toast.makeText(this, "MyLocation button clicked", Toast.LENGTH_SHORT).show();
+        toast("Actualizando ubicación");
         // Return false so that we don't consume the event and the default behavior still occurs
         // (the camera animates to the user's current position).
         return false;
@@ -145,6 +198,30 @@ public class MapsActivity extends AppCompatActivity
 //    }
 
 
+    public void toast (String msg) {
+        Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
+    }
 
+    public void OnResetClick() {
+        mMap.setLatLngBoundsForCameraTarget(null);
+    }
 
+    @Override
+    public void onMarkerDragStart(Marker marker) {
+        Toast.makeText(this, "Iniciando Drag", Toast.LENGTH_LONG).show();
+
+    }
+
+    @Override
+    public void onMarkerDrag(Marker marker) {
+        Toast.makeText(this, "Capturando Drag", Toast.LENGTH_LONG).show();
+
+    }
+
+    @Override
+    public void onMarkerDragEnd(Marker marker) {
+        ubicacionContenedor.setPosition(marker.getPosition());
+        Toast.makeText(this, "Terminado Drag => " + ubicacionContenedor, Toast.LENGTH_LONG).show();
+
+    }
 }

@@ -28,7 +28,7 @@
                 android:id="@+id/clamp_latlng_reset"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:onClick="onLatLngClampReset"
+                android:onClick="OnResetClick"
                 android:text="@string/clamp_latlng_reset"/>
         </LinearLayout>
         <LinearLayout
