@@ -1,6 +1,8 @@
 package com.contenedoressatur.android.choferesandroid.MapsPackage;
 
 
+import com.contenedoressatur.android.choferesandroid.Pedido;
+import com.contenedoressatur.android.choferesandroid.PedidosController;
 import com.contenedoressatur.android.choferesandroid.R;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnMyLocationButtonClickListener;
@@ -25,8 +27,11 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.util.ArrayList;
 
 /**
  * This demo shows how GMS Location can be used to check for changes to the users location.  The
@@ -53,6 +58,7 @@ public class MapsActivity extends AppCompatActivity
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
     private static final String TAG = MapsActivity.class.getSimpleName();
     TextView mCameraTextView;
+    private static Pedido pedido;
 
     GPSTracker gps;
     private static final LatLng base = new LatLng(38.2109726, -0.5749218);
@@ -80,6 +86,17 @@ public class MapsActivity extends AppCompatActivity
                 (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
+        Bundle parametros = this.getIntent().getExtras();
+        if (parametros != null) {
+            Log.i(TAG, "[onCreate] Bundle: " + parametros.getInt("index"));
+            int index = parametros.getInt("index");
+//            pedido = pedidoArrayList.get(index);
+            pedido = PedidosController.getPedido(index);
+            Log.i(TAG, "Direccion => " + pedido.getAddress().getString("formatted_address"));
+            ubicacionContenedorActualizada = new LatLng(pedido.getAddress().getDouble("lat"), pedido.getAddress().getDouble("lng"));
+        } else {
+            Log.i(TAG,"No tengo extradata");
+        }
     }
 
     @Override
@@ -89,6 +106,29 @@ public class MapsActivity extends AppCompatActivity
         mMap.setOnMyLocationButtonClickListener(this);
         mMap.setOnMyLocationClickListener(this);
         enableMyLocation();
+
+        mMap.setOnMarkerDragListener(new GoogleMap.OnMarkerDragListener() {
+            @Override
+            public void onMarkerDragStart(Marker marker) {
+                toast("Iniciando Drag");
+
+            }
+
+            @Override
+            public void onMarkerDrag(Marker marker) {
+
+            }
+
+            @Override
+            public void onMarkerDragEnd(Marker marker) {
+                LatLng newPos = marker.getPosition();
+                mCameraTextView.setText(newPos.toString());
+
+                ubicacionContenedor.setPosition(newPos);
+                Log.i(TAG, "newPos => " + newPos);
+                toast("Terminado Drag => ");
+            }
+        });
     }
 
     /**
@@ -101,7 +141,7 @@ public class MapsActivity extends AppCompatActivity
             Log.i(TAG, "canGetLocation => " + gps.canGetLocation());
             double latitude = gps.getLatitude() == 0.0 ? 38.2109726 : gps.getLatitude();
             double longitude = gps.getLongitude() == 0.0 ? -0.5749218 : gps.getLongitude();
-            LatLng coordenadas2 = new LatLng(latitude + 0.04, longitude + 0.04);
+            LatLng coordenadas2 = new LatLng(latitude + 0.1, longitude + 0.1);
             LatLngBounds bounds = new LatLngBounds(base, coordenadas2);
             mMap.setLatLngBoundsForCameraTarget(bounds);
             mMap.setOnCameraIdleListener(this);
@@ -127,17 +167,13 @@ public class MapsActivity extends AppCompatActivity
             gps.getLocation();
             gps.showSettingsAlert();
         }
-
-
     }
 
     public void configureMarkers() {
-        // TODO: ubicacionContenedorActualizada debe provenir de la ubicacion previa del pedido (Si existe)
-        ubicacionChofer = new LatLng(gps.getLatitude(), gps.getLongitude());  // Actualizar
         MarkerOptions markerOptions = new MarkerOptions()
-                .position(ubicacionChofer)
-                .title("Posicion Actual")
-                .snippet("Chofer")
+                .position(ubicacionContenedorActualizada)
+                .title(pedido.getAddress().getString("formatted_address"))
+                .snippet("Id: " + pedido.getOrderId() + " Estado => " + pedido.getStatus())
                 .draggable(true);
         ubicacionContenedor = mMap.addMarker(markerOptions);
 
@@ -147,7 +183,7 @@ public class MapsActivity extends AppCompatActivity
     public void onCameraIdle() {
 //        ubicacionContenedorActualizada = ubicacionContenedor.getPosition();
 //        ubicacionContenedor.setPosition(ubicacionContenedorActualizada);
-        mCameraTextView.setText(mMap.getCameraPosition().toString());
+        mCameraTextView.setText(ubicacionContenedorActualizada.toString());
     }
 
     @Override
@@ -202,26 +238,23 @@ public class MapsActivity extends AppCompatActivity
         Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
     }
 
-    public void OnResetClick() {
-        mMap.setLatLngBoundsForCameraTarget(null);
-    }
-
     @Override
     public void onMarkerDragStart(Marker marker) {
-        Toast.makeText(this, "Iniciando Drag", Toast.LENGTH_LONG).show();
 
     }
 
     @Override
     public void onMarkerDrag(Marker marker) {
-        Toast.makeText(this, "Capturando Drag", Toast.LENGTH_LONG).show();
 
     }
 
     @Override
     public void onMarkerDragEnd(Marker marker) {
-        ubicacionContenedor.setPosition(marker.getPosition());
-        Toast.makeText(this, "Terminado Drag => " + ubicacionContenedor, Toast.LENGTH_LONG).show();
 
+
+    }
+
+    public void OnResetClick(View view) {
+        mMap.setLatLngBoundsForCameraTarget(null);
     }
 }

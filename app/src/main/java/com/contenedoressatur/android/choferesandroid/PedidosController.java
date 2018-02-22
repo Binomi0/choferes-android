@@ -3,6 +3,7 @@ package com.contenedoressatur.android.choferesandroid;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.util.Log;
 import android.widget.ArrayAdapter;
 
@@ -34,11 +35,8 @@ import java.util.Date;
 public class PedidosController {
     private static final String TAG = PedidosController.class.getSimpleName();
 
-
     static ArrayList<Pedido> pedidos = new ArrayList<>();
-    static ArrayList<Pedido> cambios = new ArrayList<>();
-    static ArrayList<Pedido> puestas = new ArrayList<>();
-    static ArrayList<Pedido> retiradas = new ArrayList<>();
+
     static PedidosAdapter adapter;
 
     public PedidosController() {
@@ -52,29 +50,14 @@ public class PedidosController {
     }
 
     static ArrayList<Pedido> getPedidos() {
-//        Log.i("PedidoController", "El estatus del pedido es " + status + " y estas pasando " + requestStatus);
-//        if (requestStatus != null) {
-//            status = requestStatus;
-//            if (requestStatus.equals("retirando")) {
-//                Log.i("PedidoController", "getPedidos() => " + requestStatus);
-//                return retiradas;
-//            }
-//            if (requestStatus.equals("cambiando")) {
-//                Log.i("PedidoController", "getPedidos() => " + requestStatus);
-//                return cambios;
-//            }
-//            if (requestStatus.equals("processing")) {
-//                Log.i("PedidoController", "getPedidos() => " + requestStatus);
-//                return puestas;
-//            }
-//        }
-
         return pedidos;
+    }
+    public static Pedido getPedido(int index) {
+        return pedidos.get(index);
     }
 
     private static void setPedidos(ArrayList<Pedido> nuevosPedidos) {
         pedidos = nuevosPedidos;
-
     }
 
 
@@ -132,23 +115,29 @@ public class PedidosController {
                     buffer.append(line).append("\n");
                 }
 
+                Bundle addressBundle = new Bundle(3);
                 ArrayList<Pedido> nuevospedidos = new ArrayList<>();
                 String jsonData = buffer.toString();
 //                JSONObject dataObject = new JSONObject(jsonData);
                 JSONArray dataArray = new JSONArray(jsonData);
                 if (dataArray.length() > 0) {
                     for (int i=0; i<dataArray.length(); i++) {
-                        String product;
-
                         JSONObject pedido = dataArray.getJSONObject(i);
                         int id = pedido.getInt("id");
                         JSONObject fecha = pedido.getJSONObject("fecha");
                         String fechaPedido = fecha.getString("date");
                         String producto = pedido.getString("product");
-                        String address = pedido.getString("address");
                         String status = pedido.getString("status");
+                        JSONArray address = pedido.getJSONArray("address");
 
-                        nuevospedidos.add(new Pedido(producto, id, address, fechaPedido, status));
+                        if (address.length() > 0) {
+                            JSONObject fullAddress = address.getJSONObject(0);
+                            addressBundle.putString("formatted_address", fullAddress.getString("formatted_address"));
+                            addressBundle.putDouble("lat", fullAddress.getDouble("lat"));
+                            addressBundle.putDouble("lng", fullAddress.getDouble("lng"));
+                        }
+
+                        nuevospedidos.add(new Pedido(producto, id, addressBundle, fechaPedido, status));
 
                     }
                 }

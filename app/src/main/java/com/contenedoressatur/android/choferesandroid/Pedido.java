@@ -1,28 +1,33 @@
 package com.contenedoressatur.android.choferesandroid;
 
 import android.annotation.SuppressLint;
+import android.os.Bundle;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.util.Log;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
+import java.util.stream.Stream;
 
 /**
  * Created by user on 18/02/2018.
  */
 
-class Pedido {
+public class Pedido {
     private static final String TAG = Pedido.class.getSimpleName();
 
     private String product;
     private int orderId;
-    private String address;
+    private Bundle address;
     private String fechaPedido;
     private String status;
 
-    Pedido(String product, Integer id, String address, String fechaPedido, String status) {
+    Pedido(String product, Integer id, Bundle address, String fechaPedido, String status) {
         this.product = product;
         this.orderId = id;
         this.address = address;
@@ -31,23 +36,23 @@ class Pedido {
 
     }
 
-    String getProduct() {
+    public String getProduct() {
         return product;
     }
 
-    String getOrderId() {
+    public String getOrderId() {
         return String.valueOf(orderId);
     }
 
-    String getAddress() {
+    public Bundle getAddress() {
         return address;
     }
 
-    String getFechaPedido() {
+    public String getFechaPedido() {
         return fechaPedido;
     }
 
-    String getStatus() {
+    public String getStatus() {
         return status;
     }
 
@@ -68,6 +73,5 @@ class Pedido {
         }
         return fecha;
     }
-
 
 }

@@ -47,7 +47,7 @@ public class PedidosAdapter extends ArrayAdapter<Pedido> {
 
         product.setText(pedido.getProduct());
         id.setText(pedido.getOrderId());
-        address.setText(pedido.getAddress());
+        address.setText(pedido.getAddress().getString("formatted_address"));
         status.setText(pedido.getStatus());
 
         String text = "Pedido el " + String.valueOf(pedido.getFechaPedido());

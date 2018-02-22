@@ -76,8 +76,9 @@ public class MainActivity extends AppCompatActivity  {
         AdapterView.OnItemClickListener listener = new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> listView, View view, int i, long l) {
-                Intent detallesPedidos = new Intent(MainActivity.this, MapsActivity.class);
-                startActivity(detallesPedidos);
+                Intent mapaPedido = new Intent(MainActivity.this, MapsActivity.class);
+                mapaPedido.putExtra("index", i);
+                startActivity(mapaPedido);
             }
         };
         listView.setOnItemClickListener(listener);
@@ -124,6 +125,7 @@ public class MainActivity extends AppCompatActivity  {
                     return true;
             }
             return false;
+
         }
     };
 
