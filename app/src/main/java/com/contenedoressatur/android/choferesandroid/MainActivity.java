@@ -11,11 +11,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.net.Uri;
 import android.os.StrictMode;
+
+import com.contenedoressatur.android.choferesandroid.MapsPackage.MapsActivity;
 
 import java.lang.String;
 import java.util.ArrayList;
