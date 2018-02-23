@@ -7,6 +7,8 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.ArrayAdapter;
 
+import com.google.android.gms.maps.model.LatLng;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -34,10 +36,7 @@ import java.util.Date;
 
 public class PedidosController {
     private static final String TAG = PedidosController.class.getSimpleName();
-
-    static ArrayList<Pedido> pedidos = new ArrayList<>();
-
-    static PedidosAdapter adapter;
+    private static ArrayList<Pedido> pedidos = new ArrayList<>();
 
     public PedidosController() {
         Log.i("PedidoController", "El estatus del controlador es ");
@@ -45,13 +44,13 @@ public class PedidosController {
 
     static void cargarTodosPedidos(String chofer) {
         Log.i("PedidoController", "cargarTodosPedidos()");
-//        new JSONTask().execute("https://contenedoressatur.es/wp-json/wc/v2/orders?per_page=100&orderby=date", "all");
         new JSONTask().execute("https://contenedoressatur.es/wp-json/pedidos/v1/chofer/" + chofer);
     }
 
     static ArrayList<Pedido> getPedidos() {
         return pedidos;
     }
+
     public static Pedido getPedido(int index) {
         return pedidos.get(index);
     }
@@ -60,11 +59,10 @@ public class PedidosController {
         pedidos = nuevosPedidos;
     }
 
-
     private static void parseResponseFromRequest(ArrayList<Pedido> response) {
 
         if (pedidos.contains(response)) {
-            Log.i("[JSONTask] => pedidos","El array contiene " + response.size() + " elementos");
+            Log.i(TAG,"El array contiene " + response.size() + " elementos");
         } else {
             for (Pedido pedido: response
                  ) {
@@ -115,7 +113,6 @@ public class PedidosController {
                     buffer.append(line).append("\n");
                 }
 
-                Bundle addressBundle = new Bundle(3);
                 ArrayList<Pedido> nuevospedidos = new ArrayList<>();
                 String jsonData = buffer.toString();
 //                JSONObject dataObject = new JSONObject(jsonData);
@@ -128,16 +125,18 @@ public class PedidosController {
                         String fechaPedido = fecha.getString("date");
                         String producto = pedido.getString("product");
                         String status = pedido.getString("status");
-                        JSONArray address = pedido.getJSONArray("address");
+                        JSONArray addressArray = pedido.getJSONArray("address");
 
-                        if (address.length() > 0) {
-                            JSONObject fullAddress = address.getJSONObject(0);
-                            addressBundle.putString("formatted_address", fullAddress.getString("formatted_address"));
-                            addressBundle.putDouble("lat", fullAddress.getDouble("lat"));
-                            addressBundle.putDouble("lng", fullAddress.getDouble("lng"));
+                        String address = "";
+                        LatLng coords = new LatLng(35.2, -0.5);
+                        if (addressArray.length() == 1) {
+                            JSONObject fullAddress = addressArray.getJSONObject(0);
+                            coords = new LatLng(fullAddress.getDouble("lat"), fullAddress.getDouble("lng") );
+                            address = fullAddress.getString("formatted_address");
+
                         }
 
-                        nuevospedidos.add(new Pedido(producto, id, addressBundle, fechaPedido, status));
+                        nuevospedidos.add(new Pedido(producto, id, address, coords, fechaPedido, status));
 
                     }
                 }

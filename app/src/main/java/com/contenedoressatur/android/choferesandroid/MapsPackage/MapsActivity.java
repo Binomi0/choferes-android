@@ -4,34 +4,37 @@ package com.contenedoressatur.android.choferesandroid.MapsPackage;
 import com.contenedoressatur.android.choferesandroid.Pedido;
 import com.contenedoressatur.android.choferesandroid.PedidosController;
 import com.contenedoressatur.android.choferesandroid.R;
+import com.contenedoressatur.android.choferesandroid.woocommerce.HttpController;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
+import com.google.android.gms.maps.GoogleMap.OnCameraIdleListener;
+import com.google.android.gms.maps.GoogleMap.OnMarkerDragListener;
 import com.google.android.gms.maps.GoogleMap.OnMyLocationButtonClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMyLocationClickListener;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.GoogleMap.OnInfoWindowLongClickListener;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.content.Context;
-import android.content.IntentFilter;
+import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.location.Location;
-import android.location.LocationManager;
-import android.location.LocationProvider;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import java.util.ArrayList;
 
 /**
  * This demo shows how GMS Location can be used to check for changes to the users location.  The
@@ -44,10 +47,11 @@ public class MapsActivity extends AppCompatActivity
         OnMyLocationButtonClickListener,
         OnMyLocationClickListener,
         OnMapReadyCallback,
-        GoogleMap.OnMarkerDragListener,
-        GoogleMap.OnCameraIdleListener,
+        OnMarkerDragListener,
+        OnCameraIdleListener,
+        OnInfoWindowClickListener,
+        OnInfoWindowLongClickListener,
         ActivityCompat.OnRequestPermissionsResultCallback
-
 {
 
     /**
@@ -60,18 +64,15 @@ public class MapsActivity extends AppCompatActivity
     TextView mCameraTextView;
     private static Pedido pedido;
 
-    GPSTracker gps;
+    private GPSTracker gps;
     private static final LatLng base = new LatLng(38.2109726, -0.5749218);
-    private static Marker ubicacionContenedor;
-    private static LatLng ubicacionContenedorActualizada;
-    private static LatLng ubicacionChofer;
+    private static Marker markerUbicacionContenedor;
+    private static LatLng coordsUbicacionContenedor;
     /**
      * Flag indicating whether a requested permission has been denied after returning in
      * {@link #onRequestPermissionsResult(int, String[], int[])}.
      */
     private boolean mPermissionDenied = false;
-
-    protected LocationManager locationManager;
 
     private GoogleMap mMap;
 
@@ -82,6 +83,8 @@ public class MapsActivity extends AppCompatActivity
         setContentView(R.layout.activity_maps);
         gps = new GPSTracker(MapsActivity.this);
 
+
+
         SupportMapFragment mapFragment =
                 (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
@@ -90,10 +93,12 @@ public class MapsActivity extends AppCompatActivity
         if (parametros != null) {
             Log.i(TAG, "[onCreate] Bundle: " + parametros.getInt("index"));
             int index = parametros.getInt("index");
-//            pedido = pedidoArrayList.get(index);
             pedido = PedidosController.getPedido(index);
-            Log.i(TAG, "Direccion => " + pedido.getAddress().getString("formatted_address"));
-            ubicacionContenedorActualizada = new LatLng(pedido.getAddress().getDouble("lat"), pedido.getAddress().getDouble("lng"));
+            setTitle("Pedido " + pedido.getOrderId());
+            coordsUbicacionContenedor = pedido.getCoords();
+
+            configureButtons();
+
         } else {
             Log.i(TAG,"No tengo extradata");
         }
@@ -102,7 +107,7 @@ public class MapsActivity extends AppCompatActivity
     @Override
     public void onMapReady(GoogleMap map) {
         mMap = map;
-        mCameraTextView = (TextView) findViewById(R.id.camera_text);
+        mCameraTextView = findViewById(R.id.camera_text);
         mMap.setOnMyLocationButtonClickListener(this);
         mMap.setOnMyLocationClickListener(this);
         enableMyLocation();
@@ -124,11 +129,33 @@ public class MapsActivity extends AppCompatActivity
                 LatLng newPos = marker.getPosition();
                 mCameraTextView.setText(newPos.toString());
 
-                ubicacionContenedor.setPosition(newPos);
+                markerUbicacionContenedor.setPosition(newPos);
                 Log.i(TAG, "newPos => " + newPos);
                 toast("Terminado Drag => ");
             }
         });
+
+        mMap.setOnInfoWindowClickListener(this);
+        mMap.setOnInfoWindowLongClickListener(this);
+
+    }
+
+    @Override
+    public void onInfoWindowClick(Marker marker) {
+        new AlertDialog.Builder(this)
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setTitle("Nueva Ubicación")
+                .setMessage("¿Quieres actualizar la ubicación?")
+                .setPositiveButton("Si", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // TODO Actualizar ubicación
+                        toast("Actualizando ubicación, por favor espera...");
+                    }
+                })
+                .setNegativeButton("No", null)
+                .show();
+        toast("Info Window Clicked");
     }
 
     /**
@@ -143,8 +170,7 @@ public class MapsActivity extends AppCompatActivity
             double longitude = gps.getLongitude() == 0.0 ? -0.5749218 : gps.getLongitude();
             LatLng coordenadas2 = new LatLng(latitude + 0.1, longitude + 0.1);
             LatLngBounds bounds = new LatLngBounds(base, coordenadas2);
-            mMap.setLatLngBoundsForCameraTarget(bounds);
-            mMap.setOnCameraIdleListener(this);
+//            mMap.setLatLngBoundsForCameraTarget(null);
 
             configureMarkers();
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -161,6 +187,7 @@ public class MapsActivity extends AppCompatActivity
                 // for ActivityCompat#requestPermissions for more details.
                 return;
             }
+            mMap.setOnCameraIdleListener(this);
             mMap.setMyLocationEnabled(true);
             Toast.makeText(getApplicationContext(), "Your Location is - \nLat: " + latitude + "\nLong: " + longitude, Toast.LENGTH_LONG).show();
         } else {
@@ -171,19 +198,20 @@ public class MapsActivity extends AppCompatActivity
 
     public void configureMarkers() {
         MarkerOptions markerOptions = new MarkerOptions()
-                .position(ubicacionContenedorActualizada)
-                .title(pedido.getAddress().getString("formatted_address"))
+                .position(coordsUbicacionContenedor)
+                .title(pedido.getAddress())
                 .snippet("Id: " + pedido.getOrderId() + " Estado => " + pedido.getStatus())
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
                 .draggable(true);
-        ubicacionContenedor = mMap.addMarker(markerOptions);
+        markerUbicacionContenedor = mMap.addMarker(markerOptions);
 
     }
 
     @Override
     public void onCameraIdle() {
-//        ubicacionContenedorActualizada = ubicacionContenedor.getPosition();
-//        ubicacionContenedor.setPosition(ubicacionContenedorActualizada);
-        mCameraTextView.setText(ubicacionContenedorActualizada.toString());
+//        ubicacionContenedorActualizada = markerUbicacionContenedor.getPosition();
+//        markerUbicacionContenedor.setPosition(ubicacionContenedorActualizada);
+        mCameraTextView.setText(coordsUbicacionContenedor.toString());
     }
 
     @Override
@@ -212,7 +240,7 @@ public class MapsActivity extends AppCompatActivity
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
         if (requestCode != LOCATION_PERMISSION_REQUEST_CODE) {
-            return;
+            gps.showSettingsAlert();
         }
     }
 
@@ -254,7 +282,72 @@ public class MapsActivity extends AppCompatActivity
 
     }
 
-    public void OnResetClick(View view) {
-        mMap.setLatLngBoundsForCameraTarget(null);
+    @Override
+    public void onInfoWindowLongClick(Marker marker) {
+        Toast.makeText(this, "Info Window long click", Toast.LENGTH_SHORT).show();
     }
+
+    public void OnContenedorPuesto (View view) {
+        new AlertDialog.Builder(this)
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setTitle("Confirmar Puesta")
+                .setMessage("¿Está puesto el contenedor y ubicado correctamente?")
+                .setPositiveButton("Si", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        HttpController.containerPlaced(pedido.getOrderId());
+                        toast("Actualizando pedido, por favor espera...");
+                    }
+                })
+                .setNegativeButton("No", null)
+                .show();
+    }
+
+    public void OnContenedorCambiado (View view) {
+        new AlertDialog.Builder(this)
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setTitle("Confirmar Cambio")
+                .setMessage("¿Está cambiado el contenedor?")
+                .setPositiveButton("Si", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        HttpController.containerChanged(pedido.getOrderId());
+                        toast("Actualizando pedido, por favor espera...");
+                    }
+                })
+                .setNegativeButton("No", null)
+                .show();
+    }
+
+    public void OnContenedorRetirado(View view) {
+        new AlertDialog.Builder(this)
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setTitle("Confirmar Retirada")
+                .setMessage("¿Está retirado el contenedor?")
+                .setPositiveButton("Si", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        HttpController.containerRemoved(pedido.getOrderId());
+                        toast("Actualizando pedido, por favor espera...");
+                    }
+                })
+                .setNegativeButton("No", null)
+                .show();
+    }
+
+
+    private void configureButtons() {
+        Button contenedor_puesto = (Button) findViewById(R.id.contenedor_puesto);
+        contenedor_puesto.setEnabled(pedido.getStatus().equals("processing"));
+
+        Button contenedor_retirado = (Button) findViewById(R.id.contenedor_retirado);
+        contenedor_retirado.setEnabled(pedido.getStatus().equals("retirando"));
+
+        Button contenedor_cambiado = (Button) findViewById(R.id.contenedor_cambiado);
+        contenedor_cambiado.setEnabled(pedido.getStatus().equals("cambiando"));
+    }
+
+
+
+
 }

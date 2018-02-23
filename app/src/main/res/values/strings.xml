@@ -27,5 +27,8 @@
     <string name="title_activity_maps">Map</string>
     <string name="move_the_camera">Move Camera</string>
     <string name="clamp_latlng_reset">RESET</string>
-    <string name="map_not_ready">Cargando Mapa ...</string>
+    <string name="map_not_ready">Cargando Mapa ..</string>
+    <string name="contenedor_puesto">Puesto</string>
+    <string name="contenedor_cambiado">Cambiado</string>
+    <string name="contenedor_retirado">Retirado</string>
 </resources>

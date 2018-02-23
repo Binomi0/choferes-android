@@ -6,6 +6,8 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
 
+import com.google.android.gms.maps.model.LatLng;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -23,13 +25,15 @@ public class Pedido {
 
     private String product;
     private int orderId;
-    private Bundle address;
+    private String address;
+    private LatLng coords;
     private String fechaPedido;
     private String status;
 
-    Pedido(String product, Integer id, Bundle address, String fechaPedido, String status) {
+    Pedido(String product, Integer id, String address, LatLng coords, String fechaPedido, String status) {
         this.product = product;
         this.orderId = id;
+        this.coords = coords;
         this.address = address;
         this.status = status;
         this.fechaPedido = getFormattedDate(fechaPedido);
@@ -44,8 +48,16 @@ public class Pedido {
         return String.valueOf(orderId);
     }
 
-    public Bundle getAddress() {
+    public String getAddress() {
         return address;
+    }
+
+    public LatLng getCoords() {
+        return coords;
+    }
+
+    public void setCoords(LatLng coords) {
+        this.coords = coords;
     }
 
     public String getFechaPedido() {

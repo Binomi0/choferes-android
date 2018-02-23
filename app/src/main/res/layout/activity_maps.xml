@@ -11,6 +11,7 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
+
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:map="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -23,13 +24,40 @@
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+        >
             <Button
-                android:id="@+id/clamp_latlng_reset"
+                android:id="@+id/contenedor_puesto"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:onClick="OnResetClick"
-                android:text="@string/clamp_latlng_reset"/>
+                android:background="@color/colorPrimaryDark"
+                android:onClick="OnContenedorPuesto"
+                android:text="@string/contenedor_puesto"
+                android:textColor="@color/colorSoft"
+                android:layout_margin="8dp"
+                />
+
+            <Button
+                android:id="@+id/contenedor_cambiado"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@color/colorContrast"
+                android:onClick="OnContenedorCambiado"
+                android:layout_margin="8dp"
+                android:text="@string/contenedor_cambiado"
+
+                />
+
+            <Button
+                android:id="@+id/contenedor_retirado"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@color/colorAccent"
+                android:onClick="OnContenedorRetirado"
+                android:layout_margin="8dp"
+                android:text="@string/contenedor_retirado"
+                />
+
         </LinearLayout>
         <LinearLayout
             android:layout_width="wrap_content"
