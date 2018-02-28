@@ -27,6 +27,7 @@ import android.Manifest;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.graphics.Rect;
 import android.location.Location;
 import android.os.Bundle;
@@ -130,7 +131,7 @@ public class MapsActivity extends AppCompatActivity
             @Override
             public void onMarkerDragEnd(Marker marker) {
                 LatLng newPos = marker.getPosition();
-                mCameraTextView.setText(newPos.toString());
+                mCameraTextView.setText(pedido.getAddress());
 
                 markerUbicacionContenedor.setPosition(newPos);
                 Log.i(TAG, "newPos => " + newPos);
@@ -191,7 +192,7 @@ public class MapsActivity extends AppCompatActivity
             }
             mMap.setOnCameraIdleListener(this);
             mMap.setMyLocationEnabled(true);
-            toast("Localización encontrada - \nLat: " + gps.getLongitude() + "\nLong: " + gps.getLongitude());
+            toast("Localización encontrada - \nLat: " + gps.getLatitude() + "\nLong: " + gps.getLongitude());
         } else {
             gps.getLocation();
             gps.showSettingsAlert();
@@ -213,7 +214,7 @@ public class MapsActivity extends AppCompatActivity
     public void onCameraIdle() {
 //        ubicacionContenedorActualizada = markerUbicacionContenedor.getPosition();
 //        markerUbicacionContenedor.setPosition(ubicacionContenedorActualizada);
-        mCameraTextView.setText(coordsUbicacionContenedor.toString());
+        mCameraTextView.setText(pedido.getAddress());
     }
 
     @Override
@@ -324,14 +325,33 @@ public class MapsActivity extends AppCompatActivity
 
 
     private void configureButtons() {
-        Button contenedor_puesto = (Button) findViewById(R.id.contenedor_puesto);
-        contenedor_puesto.setEnabled(pedido.getStatus().equals("processing"));
+        // Set up button from ui
+        Button contenedor_puesto = findViewById(R.id.contenedor_puesto);
+        Button contenedor_retirado = findViewById(R.id.contenedor_retirado);
+        Button contenedor_cambiado = findViewById(R.id.contenedor_cambiado);
+        int color = getResources().getColor(R.color.colorPrimary);
+        contenedor_retirado.setBackgroundColor(Color.parseColor("#cccccc"));
+        contenedor_cambiado.setBackgroundColor(Color.parseColor("#cccccc"));
+        contenedor_puesto.setBackgroundColor(Color.parseColor("#cccccc"));
+        contenedor_retirado.setEnabled(false);
+        contenedor_cambiado.setEnabled(false);
+        contenedor_puesto.setEnabled(false);
 
-        Button contenedor_retirado = (Button) findViewById(R.id.contenedor_retirado);
-        contenedor_retirado.setEnabled(pedido.getStatus().equals("retirando"));
+        switch (pedido.getStatus()) {
+            case "processing":
+                contenedor_puesto.setEnabled(true);
+                contenedor_puesto.setBackgroundColor(color);
+                break;
+            case "cambiando":
+                contenedor_cambiado.setEnabled(true);
+                contenedor_cambiado.setBackgroundColor(color);
+                break;
+            case "retirando":
+                contenedor_retirado.setEnabled(true);
+                contenedor_retirado.setBackgroundColor(color);
+        }
 
-        Button contenedor_cambiado = (Button) findViewById(R.id.contenedor_cambiado);
-        contenedor_cambiado.setEnabled(pedido.getStatus().equals("cambiando"));
+
     }
 
 

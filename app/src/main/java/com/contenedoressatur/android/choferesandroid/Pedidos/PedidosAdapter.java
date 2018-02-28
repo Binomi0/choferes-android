@@ -43,12 +43,29 @@ public class PedidosAdapter extends ArrayAdapter<Pedido> {
         product.setText(pedido.getProduct());
         id.setText(pedido.getOrderId());
         address.setText(pedido.getAddress());
-        status.setText(pedido.getStatus());
+        status.setText(getStatus(pedido.getStatus()));
 
         String text = "Pedido el " + String.valueOf(pedido.getFechaPedido());
         fechaPedido.setText(text);
 
         return convertView;
+    }
+
+    public String getStatus(String status) {
+        switch (status) {
+            case "pending":
+                return "pendiente";
+            case "on-hold":
+                return "en espera";
+            case "processing":
+                return "puesta";
+            case "cambiando":
+                return "cambio";
+            case "retirando":
+                return "retirada";
+            default:
+                return "estado";
+        }
     }
 
 

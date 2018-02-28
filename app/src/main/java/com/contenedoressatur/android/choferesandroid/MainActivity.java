@@ -118,6 +118,8 @@ public class MainActivity extends AppCompatActivity  {
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
         cargarContenidoInicio();
+        checkChoferToken();
+
     }
 
     /**
@@ -164,7 +166,6 @@ public class MainActivity extends AppCompatActivity  {
 
         // Read app preferences
         myPreferences = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
-        checkChoferToken();
     }
 
     private void cargarContenidoPedidos() {
@@ -243,13 +244,6 @@ public class MainActivity extends AppCompatActivity  {
         return super.onOptionsItemSelected(item);
     }
 
-
-
-    void showHomeView(){
-        Intent intent = new Intent(Intent.ACTION_SEND);
-        intent.putExtra(Intent.EXTRA_EMAIL, new String[] { "adolfo@contenedoressatur.com" });
-        startActivity(intent);
-    }
 
     private void pickContact() {
         // Create an intent to "pick" a contact, as defined by the content provider URI
@@ -342,6 +336,7 @@ public class MainActivity extends AppCompatActivity  {
     public void toast (String msg) {
         Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
     }
+
 
 
 
