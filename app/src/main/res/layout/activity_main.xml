@@ -52,6 +52,27 @@
         android:layout_marginTop="@dimen/activity_toolbar_vertical_margin_list"
         />
 
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="50dp"
+        app:layout_constraintBottom_toTopOf="@+id/navigation">
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/fab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_gravity="bottom"
+
+            android:tint="@color/colorContrast"
+            app:backgroundTint="@color/colorPrimary"
+            app:srcCompat="@drawable/sync" />
+    </RelativeLayout>
+
+
     <android.support.design.widget.BottomNavigationView
         android:id="@+id/navigation"
         android:layout_width="0dp"

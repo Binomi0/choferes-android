@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.util.ArraySet;
 import android.support.v7.app.AppCompatActivity;
@@ -73,6 +74,7 @@ public class MainActivity extends AppCompatActivity  {
     TextView trabajosPendientes;
     ImageView logo;
     static final int PICK_CONTACT_REQUEST = 1;  // The request code
+    FloatingActionButton fab;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,6 +92,9 @@ public class MainActivity extends AppCompatActivity  {
         TextView mTextEmail = findViewById(R.id.email);
         Bundle parametros = this.getIntent().getExtras();
         logo = findViewById(R.id.logo);
+        fab = findViewById(R.id.fab);
+
+
 
         // Recoger parametros pasados desde loginactivity
         if (parametros != null) {
@@ -110,6 +115,16 @@ public class MainActivity extends AppCompatActivity  {
             return;
         }
 
+        fab.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View view) {
+//                showProgress(true);
+                toast("Actualizando Pedidos");
+                pedidoArrayList = PedidosController.cargarTodosPedidos(chofer);
+            }
+        });
+
         pedidoArrayList = PedidosController.getPedidos();
         adapter = new PedidosAdapter(this, pedidoArrayList);
         listView.setAdapter(adapter);
@@ -118,7 +133,6 @@ public class MainActivity extends AppCompatActivity  {
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
         cargarContenidoInicio();
-        checkChoferToken();
 
     }
 
@@ -166,11 +180,15 @@ public class MainActivity extends AppCompatActivity  {
 
         // Read app preferences
         myPreferences = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
+        checkChoferToken();
+
     }
 
     private void cargarContenidoPedidos() {
         trabajosPendientes.setVisibility(View.VISIBLE);
         logo.setVisibility(View.INVISIBLE);
+        fab.setVisibility(View.VISIBLE);
+
 
         if (adapter == null) {
             Log.i(TAG,"cargarContenidoPedidos => Adapter es Null");
@@ -199,6 +217,7 @@ public class MainActivity extends AppCompatActivity  {
     private void cargarContenidoInicio() {
         trabajosPendientes.setVisibility(View.INVISIBLE);
         logo.setVisibility(View.VISIBLE);
+        fab.setVisibility(View.INVISIBLE);
 
         adapter.clear();
         // TODO Añadir contenido seccion home
@@ -243,7 +262,6 @@ public class MainActivity extends AppCompatActivity  {
         }
         return super.onOptionsItemSelected(item);
     }
-
 
     private void pickContact() {
         // Create an intent to "pick" a contact, as defined by the content provider URI
@@ -336,6 +354,7 @@ public class MainActivity extends AppCompatActivity  {
     public void toast (String msg) {
         Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
     }
+
 
 
 
