@@ -76,12 +76,12 @@
         android:layout_height="fill_parent"
         class="com.google.android.gms.maps.SupportMapFragment"
         map:cameraMinZoomPreference="10.0"
-        map:cameraMaxZoomPreference="18.0"
+        map:cameraMaxZoomPreference="20.0"
         map:latLngBoundsSouthWestLatitude="38.18"
         map:latLngBoundsSouthWestLongitude="-0.6"
         map:latLngBoundsNorthEastLatitude="38.26"
         map:latLngBoundsNorthEastLongitude="-0.52"
         map:cameraTargetLat="38.2109726"
         map:cameraTargetLng="-0.5749218"
-        map:cameraZoom="12"/>
+        map:cameraZoom="16"/>
 </LinearLayout>

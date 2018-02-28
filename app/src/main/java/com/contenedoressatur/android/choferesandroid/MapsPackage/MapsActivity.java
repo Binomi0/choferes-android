@@ -1,10 +1,12 @@
 package com.contenedoressatur.android.choferesandroid.MapsPackage;
 
 
-import com.contenedoressatur.android.choferesandroid.Pedido;
-import com.contenedoressatur.android.choferesandroid.PedidosController;
+import com.contenedoressatur.android.choferesandroid.Pedidos.Pedido;
+import com.contenedoressatur.android.choferesandroid.Pedidos.PedidosController;
 import com.contenedoressatur.android.choferesandroid.R;
 import com.contenedoressatur.android.choferesandroid.woocommerce.HttpController;
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
 import com.google.android.gms.maps.GoogleMap.OnCameraIdleListener;
@@ -19,16 +21,18 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.GoogleMap.OnInfoWindowLongClickListener;
+import com.google.firebase.iid.FirebaseInstanceId;
 
 import android.Manifest;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
+import android.graphics.Rect;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -47,7 +51,7 @@ public class MapsActivity extends AppCompatActivity
         OnMyLocationButtonClickListener,
         OnMyLocationClickListener,
         OnMapReadyCallback,
-        OnMarkerDragListener,
+//        OnMarkerDragListener,
         OnCameraIdleListener,
         OnInfoWindowClickListener,
         OnInfoWindowLongClickListener,
@@ -84,7 +88,6 @@ public class MapsActivity extends AppCompatActivity
         gps = new GPSTracker(MapsActivity.this);
 
 
-
         SupportMapFragment mapFragment =
                 (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
@@ -115,7 +118,7 @@ public class MapsActivity extends AppCompatActivity
         mMap.setOnMarkerDragListener(new GoogleMap.OnMarkerDragListener() {
             @Override
             public void onMarkerDragStart(Marker marker) {
-                toast("Iniciando Drag");
+                toast("Buscando ubicación");
 
             }
 
@@ -131,7 +134,7 @@ public class MapsActivity extends AppCompatActivity
 
                 markerUbicacionContenedor.setPosition(newPos);
                 Log.i(TAG, "newPos => " + newPos);
-                toast("Terminado Drag => ");
+                toast("Actualizando posición...");
             }
         });
 
@@ -149,13 +152,14 @@ public class MapsActivity extends AppCompatActivity
                 .setPositiveButton("Si", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        // TODO Actualizar ubicación
+                        HttpController.updateOrderLocationFromMarker(markerUbicacionContenedor.getPosition(), pedido.getOrderId());
+
                         toast("Actualizando ubicación, por favor espera...");
+                        onBackPressed();
                     }
                 })
                 .setNegativeButton("No", null)
                 .show();
-        toast("Info Window Clicked");
     }
 
     /**
@@ -163,22 +167,20 @@ public class MapsActivity extends AppCompatActivity
      */
     private void enableMyLocation() {
         if (gps.canGetLocation()) {
-//            Location location = new Location(gps.getLocation());
-            // gps enabled} // return boolean true/false
             Log.i(TAG, "canGetLocation => " + gps.canGetLocation());
-            double latitude = gps.getLatitude() == 0.0 ? 38.2109726 : gps.getLatitude();
-            double longitude = gps.getLongitude() == 0.0 ? -0.5749218 : gps.getLongitude();
-            LatLng coordenadas2 = new LatLng(latitude + 0.1, longitude + 0.1);
-            LatLngBounds bounds = new LatLngBounds(base, coordenadas2);
-//            mMap.setLatLngBoundsForCameraTarget(null);
+
+            LatLng posicionChofer = new LatLng(gps.getLatitude(), gps.getLongitude());
+            LatLngBounds.Builder builder = new LatLngBounds.Builder();
+            builder.include(posicionChofer);
+            builder.include(coordsUbicacionContenedor);
+            LatLngBounds bounds = builder.build();
+            mMap.setLatLngBoundsForCameraTarget(bounds);
 
             configureMarkers();
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 gps.showSettingsAlert();
                 Log.i(TAG, "isGPSEnabled => " + gps.isGPSEnabled);
-                Log.i(TAG, "isRestricted => " + gps.isRestricted());
                 Log.i(TAG, "isNetworkEnabled => " + gps.isNetworkEnabled);
-                // TODO: Consider calling
                 //    ActivityCompat#requestPermissions
                 // here to request the missing permissions, and then overriding
                 //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
@@ -189,7 +191,7 @@ public class MapsActivity extends AppCompatActivity
             }
             mMap.setOnCameraIdleListener(this);
             mMap.setMyLocationEnabled(true);
-            Toast.makeText(getApplicationContext(), "Your Location is - \nLat: " + latitude + "\nLong: " + longitude, Toast.LENGTH_LONG).show();
+            toast("Localización encontrada - \nLat: " + gps.getLongitude() + "\nLong: " + gps.getLongitude());
         } else {
             gps.getLocation();
             gps.showSettingsAlert();
@@ -233,7 +235,7 @@ public class MapsActivity extends AppCompatActivity
 
     @Override
     public void onMyLocationClick(@NonNull Location location) {
-        Toast.makeText(this, "Current location:\n" + location, Toast.LENGTH_LONG).show();
+        toast("Ubicación actual:\n" + location);
     }
 
     @Override
@@ -267,24 +269,9 @@ public class MapsActivity extends AppCompatActivity
     }
 
     @Override
-    public void onMarkerDragStart(Marker marker) {
-
-    }
-
-    @Override
-    public void onMarkerDrag(Marker marker) {
-
-    }
-
-    @Override
-    public void onMarkerDragEnd(Marker marker) {
-
-
-    }
-
-    @Override
     public void onInfoWindowLongClick(Marker marker) {
-        Toast.makeText(this, "Info Window long click", Toast.LENGTH_SHORT).show();
+
+        toast("Info Window long click");
     }
 
     public void OnContenedorPuesto (View view) {

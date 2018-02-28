@@ -1,36 +1,68 @@
 package com.contenedoressatur.android.choferesandroid;
 
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Intent;
 
+import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.util.ArraySet;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.net.Uri;
 import android.os.StrictMode;
+import android.widget.Toast;
 
 import com.contenedoressatur.android.choferesandroid.MapsPackage.MapsActivity;
+import com.contenedoressatur.android.choferesandroid.Pedidos.Pedido;
+import com.contenedoressatur.android.choferesandroid.Pedidos.PedidosAdapter;
+import com.contenedoressatur.android.choferesandroid.Pedidos.PedidosController;
+import com.google.firebase.iid.FirebaseInstanceId;
 
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.lang.String;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
+import javax.net.ssl.HttpsURLConnection;
 
 
 public class MainActivity extends AppCompatActivity  {
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
-    private TextView mTextMessage;
+    TextView mTextMessage;
     ListView listView;
     PedidosAdapter adapter;
     ArrayList<Pedido> pedidoArrayList;
-
+    View mProgressView;
+    SharedPreferences myPreferences;
+    SharedPreferences.Editor myEditor;
+    String chofer;
+    String email;
     static final int PICK_CONTACT_REQUEST = 1;  // The request code
 
     @Override
@@ -39,30 +71,38 @@ public class MainActivity extends AppCompatActivity  {
         setContentView(R.layout.activity_main);
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
-        String nombre = "Adolfo";
-        PedidosController.cargarTodosPedidos(nombre);
 
-        setTitle("Contenedores Satur");
-        mTextMessage = findViewById(R.id.message);
         TextView mTextEmail = findViewById(R.id.email);
-        listView = findViewById(R.id.lista_pedidos);
-
-        pedidoArrayList = PedidosController.getPedidos();
-        adapter = new PedidosAdapter(this, pedidoArrayList);
-        listView.setAdapter(adapter);
-
 
         Bundle parametros = this.getIntent().getExtras();
 
         // Recoger parametros pasados desde loginactivity
         if (parametros != null) {
             Log.i("[MAINACTIVITY] Params", "[ExtraData] $email: " + parametros.getString("email"));
-            String email = parametros.getString("email");
+            chofer = parametros.getString("chofer", "Contenedores Satur");
+            email = parametros.getString("email");
             mTextEmail.setText(email);
+            setTitle("Chófer " + chofer + "");
+            toast("Bienvenido " + chofer);
+
+            ArrayList nuevosPedidos = PedidosController.cargarTodosPedidos(chofer);
+            Log.i(TAG, "nuevosPedios => " + nuevosPedidos.size());
+
         } else {
-            Log.i("[MAINACTIVITY]","No tengo extradata");
+            setTitle("Chóferes Satur");
+            Log.i("[MAINACTIVITY]","No se han cargado pedidos");
+            toast("No se han cargado pedidos.");
             return;
         }
+        mProgressView = findViewById(R.id.login_progress);
+
+        mTextMessage = findViewById(R.id.message);
+        listView = findViewById(R.id.lista_pedidos);
+
+        pedidoArrayList = PedidosController.getPedidos();
+        adapter = new PedidosAdapter(this, pedidoArrayList);
+        listView.setAdapter(adapter);
+
 
         BottomNavigationView navigation = findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
@@ -71,6 +111,8 @@ public class MainActivity extends AppCompatActivity  {
 
     @Override
     protected void onStart() {
+
+        // TODO insertar campos telefono entrega y persona de contacto en los detalles del pedido y empresa
         super.onStart();
 
         AdapterView.OnItemClickListener listener = new AdapterView.OnItemClickListener() {
@@ -82,30 +124,39 @@ public class MainActivity extends AppCompatActivity  {
             }
         };
         listView.setOnItemClickListener(listener);
+
+        Button mostrar = findViewById(R.id.button_notification);
+
+
+        // Read app preferences
+        myPreferences = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
+        checkChoferToken();
     }
 
-    private void cargarContenido() {
+    private void cargarContenidoPedidos() {
         if (adapter == null) {
-            Log.i(TAG,"actualizarListadoPedidos => Adapter es Null");
+            Log.i(TAG,"cargarContenidoPedidos => Adapter es Null");
             adapter = new PedidosAdapter(this, pedidoArrayList);
             listView.setAdapter(adapter);
         }
 
         pedidoArrayList = PedidosController.getPedidos();
 
-
         if (pedidoArrayList.isEmpty()) {
+            PedidosController.cargarTodosPedidos(chofer);
             Log.i(TAG,"cargarContenido() => ArrayList: " + pedidoArrayList.size());
-            adapter.clear();
         }
 
-//        adapter = new PedidosAdapter(this, pedidoArrayList);
         Log.i(TAG,"actualizarListadoPedidos => Adapter ok");
         Log.i(TAG,"listaPedidos => " + pedidoArrayList.size());
         adapter.clear();
         adapter.notifyDataSetChanged();
         adapter.addAll(pedidoArrayList);
 
+    }
+    private void cargarContenidoInicio() {
+        adapter.clear();
+        // TODO Añadir contenido seccion home
     }
 
 
@@ -117,11 +168,11 @@ public class MainActivity extends AppCompatActivity  {
             switch (item.getItemId()) {
                 case R.id.navigation_home:
                     mTextMessage.setText(R.string.title_home);
-                    cargarContenido();
+                    cargarContenidoInicio();
                     return true;
                 case R.id.navigation_pedidos:
                     mTextMessage.setText(R.string.title_pedidos);
-                    cargarContenido();
+                    cargarContenidoPedidos();
                     return true;
             }
             return false;
@@ -159,6 +210,92 @@ public class MainActivity extends AppCompatActivity  {
         // Create an intent to "pick" a contact, as defined by the content provider URI
         Intent intent = new Intent(Intent.ACTION_PICK, Uri.parse("content://contacts"));
         startActivityForResult(intent, PICK_CONTACT_REQUEST);
+    }
+
+    public void mostrarNotificacion(View v) {
+        Toast.makeText(this, "Notificacion", Toast.LENGTH_SHORT).show();
+    }
+
+    public void checkChoferToken() {
+
+        String token =  myPreferences.getString(chofer, null);
+        String refreshedToken = FirebaseInstanceId.getInstance().getToken();
+        if (token != null) {
+            Log.i(TAG, "Refreshed token: " + refreshedToken);
+            Log.i(TAG,"Token: " + token);
+            if (token.equals(refreshedToken)) {
+                Log.i(TAG, "El token es igual, saliendo...");
+                myEditor = myPreferences.edit();
+                myEditor.remove("token");
+//
+//                myEditor = myPreferences.edit();
+//                myEditor.remove("token");
+//                myEditor.apply();
+                return;
+            } else {
+                updateToken(refreshedToken);
+                return;
+            }
+        } else {
+            updateToken(refreshedToken);
+        }
+        myEditor = myPreferences.edit();
+        myEditor.putString(chofer, refreshedToken);
+//        myEditor.remove("token");
+        myEditor.apply();
+    }
+
+    public void updateToken(String token) {
+
+        String query = chofer + "/" + token;
+        new UpdateTokenTask().execute(query);
+
+    }
+
+    static public class UpdateTokenTask extends AsyncTask<String, String, Boolean> {
+        String request = "https://contenedoressatur.es/wp-json/choferes/v1/update_token/";
+        BufferedReader reader = null;
+
+        @Override
+        protected Boolean doInBackground(String... strings) {
+            request += strings[0];
+            try {
+                URL url = new URL(request);
+                HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+                conn.setConnectTimeout(15000);
+                conn.setRequestMethod("POST");
+//                conn.setRequestProperty("Accept", "application/json");
+                conn.connect();
+
+                InputStream stream = conn.getInputStream();
+
+                reader = new BufferedReader(new InputStreamReader(stream));
+
+                StringBuilder buffer = new StringBuilder();
+
+                String jsonData = buffer.toString();
+                if (jsonData.length() > 0){
+                    Log.i(TAG, "Response: " + jsonData);
+                    return true;
+                }
+
+                return false;
+
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (ProtocolException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            return true;
+        }
+    }
+
+
+    public void toast (String msg) {
+        Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
     }
 
 

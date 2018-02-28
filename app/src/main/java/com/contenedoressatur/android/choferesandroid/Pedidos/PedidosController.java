@@ -1,12 +1,19 @@
-package com.contenedoressatur.android.choferesandroid;
+package com.contenedoressatur.android.choferesandroid.Pedidos;
 
-import android.app.ActivityManager;
-import android.content.Context;
+import android.app.Activity;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
-import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.support.v4.util.ArraySet;
 import android.util.Log;
+import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
 
+import com.contenedoressatur.android.choferesandroid.MainActivity;
+import com.contenedoressatur.android.choferesandroid.R;
 import com.google.android.gms.maps.model.LatLng;
 
 import org.json.JSONArray;
@@ -17,13 +24,13 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Array;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.EventListener;
+import java.util.Set;
 
 /**
  *
@@ -34,20 +41,23 @@ import java.util.Date;
  * adolfo.onrubia.es
  */
 
-public class PedidosController {
+public class PedidosController extends Activity {
+
     private static final String TAG = PedidosController.class.getSimpleName();
     private static ArrayList<Pedido> pedidos = new ArrayList<>();
+    ListView listView = (ListView) findViewById(R.id.lista_pedidos);
 
     public PedidosController() {
         Log.i("PedidoController", "El estatus del controlador es ");
     }
 
-    static void cargarTodosPedidos(String chofer) {
-        Log.i("PedidoController", "cargarTodosPedidos()");
-        new JSONTask().execute("https://contenedoressatur.es/wp-json/pedidos/v1/chofer/" + chofer);
+    static public ArrayList<Pedido> cargarTodosPedidos(String chofer) {
+        String request = "https://contenedoressatur.es/wp-json/pedidos/v1/chofer/" + chofer;
+        new JSONTask().execute(request);
+        return pedidos;
     }
 
-    static ArrayList<Pedido> getPedidos() {
+    public static ArrayList<Pedido> getPedidos() {
         return pedidos;
     }
 
@@ -55,24 +65,27 @@ public class PedidosController {
         return pedidos.get(index);
     }
 
-    private static void setPedidos(ArrayList<Pedido> nuevosPedidos) {
-        pedidos = nuevosPedidos;
-    }
+    static private void parseResponseFromRequest(ArrayList<Pedido> response) {
+//        Set<Pedido> mySet = new ArraySet<>();
 
-    private static void parseResponseFromRequest(ArrayList<Pedido> response) {
-
-        if (pedidos.contains(response)) {
+        if ( response != null ) {
             Log.i(TAG,"El array contiene " + response.size() + " elementos");
-        } else {
-            for (Pedido pedido: response
-                 ) {
-                Log.i("[PEDIDOS CONTROLLER","status => " + pedido.getStatus());
-                Log.i("[PEDIDOS CONTROLLER","ID => " + pedido.getOrderId());
-            }
-            Log.i("[JSONTask] => pedidos","El array NO contiene el pedido");
-            setPedidos(response);
-        }
+//
+            if (pedidos.equals(response) ) {
+                Log.i(TAG,"El pedido es igual a la respuesta");
 
+            } else {
+//                for (Pedido pedido: response ) {
+//                    if ( ! mySet.contains(pedido)) {
+//                        mySet.add(pedido);
+//                    }
+//                }
+                pedidos = response;
+            }
+
+        } else {
+            Log.i("[JSONTask] => pedidos","El array NO contiene el pedido");
+        }
     }
 
     static class JSONTask extends AsyncTask<String, String, ArrayList<Pedido>> {
@@ -86,7 +99,6 @@ public class PedidosController {
         @Override
         protected void onProgressUpdate(String... values) {
             super.onProgressUpdate(values);
-
         }
 
         @Override

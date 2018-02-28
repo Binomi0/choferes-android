@@ -1,22 +1,16 @@
-package com.contenedoressatur.android.choferesandroid;
+package com.contenedoressatur.android.choferesandroid.Pedidos;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
-import android.support.annotation.Nullable;
-import android.util.Log;
+import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-import java.text.SimpleDateFormat;
+import com.contenedoressatur.android.choferesandroid.R;
+
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Locale;
-import java.util.SimpleTimeZone;
 
 /**
  * Created by user on 18/02/2018.
@@ -30,8 +24,9 @@ public class PedidosAdapter extends ArrayAdapter<Pedido> {
         super(context, 0 , nuevosPedidos);
     }
 
+    @NonNull
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public View getView(int position, View convertView, @NonNull ViewGroup parent) {
 
         if (convertView == null) {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.lista_pedidos, parent, false);

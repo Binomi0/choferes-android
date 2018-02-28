@@ -3,9 +3,12 @@ package com.contenedoressatur.android.choferesandroid;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.media.Image;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -38,6 +41,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
 
+import com.contenedoressatur.android.choferesandroid.woocommerce.HttpController;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -56,6 +60,10 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
      */
     private static final String TAG = "[LoginActivity] =>";
     private static final int REQUEST_READ_CONTACTS = 0;
+
+    Bundle choferes = new Bundle();
+
+    private Boolean userAuthed = false;
 
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
@@ -76,6 +84,59 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        // Set Up Choferes
+        choferes.putString("adolfo@onrubia.es", "Adolfo");
+        choferes.putString("otro@email.com", "Adolfo1");
+        choferes.putString("otro2@email.com", "Adolfo2");
+        choferes.putString("jose@contenedoressatur.com", "Jose");
+
+        choferes.putString("antoniosatur1@gmail.com", "Antonio");
+        choferes.putString("rogeliosatur@gmail.com", "Rogelio");
+        choferes.putString("contenedoressatur@gmail.com", "Satur");
+        choferes.putString("bernalsalgal@gmail.com", "Alejandro");
+        choferes.putString("resitur9@gmail.com", "Dario");
+
+        // Check if is already a user
+        mAuth = FirebaseAuth.getInstance();
+
+        mAuthListener = new FirebaseAuth.AuthStateListener() {
+
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+
+                currentUser = firebaseAuth.getCurrentUser();
+
+                if (currentUser != null) {
+                    // User is signed in
+                    Log.i(TAG, "onAuthStateChanged:signed_in:" + currentUser.getUid());
+                    String email = currentUser.getEmail();
+                    Intent loggedIn = new Intent(LoginActivity.this, MainActivity.class);
+
+                    if (!email.isEmpty()) {
+
+                        loggedIn.putExtra("email", email);
+                    }
+
+                    if (choferes.containsKey(currentUser.getEmail())) {
+                        Log.i(TAG, "userAuthed => Es un chofer");
+                        loggedIn.putExtra("chofer", choferes.getString(currentUser.getEmail()));
+                        loggedIn.putExtra("email", currentUser.getEmail());
+                        startActivity(loggedIn);
+                    } else {
+                        Log.i(TAG, "El usuario no es un chofer");
+                    }
+
+//                    mAuth.signOut();
+
+                } else {
+
+                    // User is signed out
+                    Log.i(TAG, "onAuthStateChanged:signed_out");
+                }
+            }
+        };
+
         // Set up the login form.
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
         populateAutoComplete();
@@ -84,11 +145,11 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
-                if (id == EditorInfo.IME_ACTION_DONE || id == EditorInfo.IME_NULL) {
-                    attemptLogin();
-                    return true;
-                }
-                return false;
+            if (id == EditorInfo.IME_ACTION_DONE || id == EditorInfo.IME_NULL) {
+                attemptLogin();
+                return true;
+            }
+            return false;
             }
         });
 
@@ -102,92 +163,33 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
-
-        mAuth = FirebaseAuth.getInstance();
-
-        mAuthListener = new FirebaseAuth.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                currentUser = firebaseAuth.getCurrentUser();
-                if (currentUser != null) {
-                    // User is signed in
-                    Log.i(TAG, "onAuthStateChanged:signed_in:" + currentUser.getUid());
-                    String name = currentUser.getDisplayName();
-                    String email = currentUser.getEmail();
-                    Intent loggedIn = new Intent(LoginActivity.this, MainActivity.class);
-                    if (!name.isEmpty()) {
-                        loggedIn.putExtra("nombre", name);
-                    }
-                    if (!email.isEmpty()) {
-                        loggedIn.putExtra("email", email);
-                    }
-                    startActivity(loggedIn);
-                } else {
-                    // User is signed out
-                    Log.i(TAG, "onAuthStateChanged:signed_out");
-                }
-            }
-        };
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        Log.i(TAG,"onStart");
-        // Check if user is signed in (non-null) and update UI accordingly.
 
-        mAuthListener.onAuthStateChanged(mAuth);
+//
+//    @Override
+//    public void onStart() {
+//        super.onStart();
+//        Log.i(TAG,"onStart");
+//        // Check if user is signed in (non-null) and update UI accordingly.
+//
+//
+//    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
         if ( currentUser != null) {
+            // TODO cambiar de activity?
             Log.i(TAG,"CURRENT Email: " + currentUser.getEmail());
 
         } else {
+            mAuthListener.onAuthStateChanged(mAuth);
+
+            // TODO Redirigir a login?
             Log.i(TAG,"EL USUARIO ES NULL");
         }
     }
-
-    private void populateAutoComplete() {
-        if (!mayRequestContacts()) {
-            return;
-        }
-
-        getLoaderManager().initLoader(0, null, this);
-    }
-
-    private boolean mayRequestContacts() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            return true;
-        }
-        if (checkSelfPermission(READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
-            return true;
-        }
-        if (shouldShowRequestPermissionRationale(READ_CONTACTS)) {
-            Snackbar.make(mEmailView, R.string.permission_rationale, Snackbar.LENGTH_INDEFINITE)
-                    .setAction(android.R.string.ok, new View.OnClickListener() {
-                        @Override
-                        @TargetApi(Build.VERSION_CODES.M)
-                        public void onClick(View v) {
-                            requestPermissions(new String[]{READ_CONTACTS}, REQUEST_READ_CONTACTS);
-                        }
-                    });
-        } else {
-            requestPermissions(new String[] {READ_CONTACTS}, REQUEST_READ_CONTACTS);
-        }
-        return false;
-    }
-
-    /**
-     * Callback received when a permissions request has been completed.
-     */
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
-        if (requestCode == REQUEST_READ_CONTACTS) {
-            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                populateAutoComplete();
-            }
-        }
-    }
-
 
     /**
      * Attempts to sign in or register the account specified by the login form.
@@ -241,51 +243,129 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         }
     }
 
-    private boolean isEmailValid(String email) {
-        //TODO: Replace this with your own logic
-        return email.contains("@");
-    }
 
-    private boolean isPasswordValid(String password) {
-        //TODO: Replace this with your own logic
-        return password.length() > 4;
-    }
 
     /**
-     * Shows the progress UI and hides the login form.
+     * Represents an asynchronous login/registration task used to authenticate
+     * the user.
      */
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
-    private void showProgress(final boolean show) {
-        // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
-        // for very easy animations. If available, use these APIs to fade-in
-        // the progress spinner.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
-            int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
+    public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
 
-            mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-            mLoginFormView.animate().setDuration(shortAnimTime).alpha(
-                    show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-                }
-            });
+        private final String mEmail;
+        private final String mPassword;
 
-            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-            mProgressView.animate().setDuration(shortAnimTime).alpha(
-                    show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+        UserLoginTask(String email, String password) {
+            mEmail = email;
+            mPassword = password;
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... params) {
+            FirebaseUser currentUser = mAuth.getCurrentUser();
+
+            if (choferes.containsKey(mEmail)) {
+                mAuth.signInWithEmailAndPassword(mEmail, mPassword)
+                        .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                            @Override
+                            public void onComplete(@NonNull Task<AuthResult> task) {
+                                if (task.isSuccessful()) {
+                                    // Sign in success, update UI with the signed-in user's information
+                                    Log.d(TAG, "signInWithEmail:isComplete?" + task.isComplete());
+                                    onPostExecute(true);
+                                } else {
+                                    // If sign in fails, display a message to the user.
+                                    Log.d(TAG, "signInWithEmail:failure", task.getException());
+                                    toast("Authentication failed: result =>" + task.getException());
+                                    onPostExecute(false);
+
+                                }
+                            }
+                        });
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        void registerNewUser(final String mEmail, final String mPassword) {
+            mAuth.createUserWithEmailAndPassword(mEmail, mPassword)
+                .addOnCompleteListener(LoginActivity.this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            // Sign in success, update UI with the signed-in user's information
+                            Log.d(TAG, "createUserWithEmail:success");
+                            onPostExecute(true);
+                        } else {
+                            // If sign in fails, display a message to the user.
+
+                            Log.w(TAG, "createUserWithEmail:failure", task.getException());
+                            Toast.makeText(LoginActivity.this, "Authentication failed.",
+                                    Toast.LENGTH_SHORT).show();
+                            onPostExecute(false);
+                        }
+
+                        // ...
+                    }
+                });
+        }
+
+        @Override
+        protected void onPostExecute(final Boolean success) {
+            mAuthTask = null;
+            showProgress(false);
+
+            if (success) {
+                // finish();
+                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                if (user != null) {
+                    // Name, email address, and profile photo Url
+                    Uri photoUrl = user.getPhotoUrl();
+
+                    // Check if user's email is verified
+                    boolean emailVerified = user.isEmailVerified();
+
+                    // The user's ID, unique to the Firebase project. Do NOT use this value to
+                    // authenticate with your backend server, if you have one. Use
+                    // FirebaseUser.getToken() instead.
+                    String uid = user.getUid();
+                    Log.i(TAG,"UID: " + uid);
+                    Log.i(TAG, "userAuthed => Es un chofer");
+
+                    Intent loggedIn = new Intent(LoginActivity.this, MainActivity.class);
+
+
+
+                    if (choferes.containsKey(mEmail)) {
+                        Log.i(TAG, "userAuthed => Es un chofer");
+                        loggedIn.putExtra("chofer", choferes.getString(mEmail));
+                        loggedIn.putExtra("email", mEmail);
+                    }
+
+                    startActivity(loggedIn);
+
+                } else {
+                    registerNewUser(mEmail, mPassword);
+                    toast("Activando usuario, por favor espera...");
+                    Log.i(TAG,"No tengo usuario de firebase: null => " + user);
                 }
-            });
-        } else {
-            // The ViewPropertyAnimator APIs are not available, so simply show
-            // and hide the relevant UI components.
-            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-            mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
+            } else {
+                Log.i(TAG,"Ha habido un error en la verificación del usuario");
+
+                toast("Ha habido un error en la verificación del usuario");
+
+                mPasswordView.setError(getString(R.string.error_incorrect_password));
+                mPasswordView.requestFocus();
+            }
+        }
+
+        @Override
+        protected void onCancelled() {
+            mAuthTask = null;
+            showProgress(false);
         }
     }
+
 
     @Override
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
@@ -341,124 +421,114 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         int IS_PRIMARY = 1;
     }
 
+    public void toast(String message) {
+        Toast toast = Toast.makeText(LoginActivity.this, message, Toast.LENGTH_SHORT);
+        toast.setGravity(Gravity.TOP|Gravity.CENTER, 0, 0);
+        toast.show();
+    }
+
+
+
+    private boolean isEmailValid(String email) {
+        //TODO: Replace this with your own logic
+        return email.contains("@");
+    }
+
+    private boolean isPasswordValid(String password) {
+        //TODO: Replace this with your own logic
+        return password.length() > 4;
+    }
+
     /**
-     * Represents an asynchronous login/registration task used to authenticate
-     * the user.
+     * Shows the progress UI and hides the login form.
      */
-    public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
+    private void showProgress(final boolean show) {
+        // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
+        // for very easy animations. If available, use these APIs to fade-in
+        // the progress spinner.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
+            int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
 
-        private final String mEmail;
-        private final String mPassword;
+            mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
+            mLoginFormView.animate().setDuration(shortAnimTime).alpha(
+                    show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
+                }
+            });
 
-        UserLoginTask(String email, String password) {
-            mEmail = email;
-            mPassword = password;
+            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+            mProgressView.animate().setDuration(shortAnimTime).alpha(
+                    show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+                }
+            });
+        } else {
+            // The ViewPropertyAnimator APIs are not available, so simply show
+            // and hide the relevant UI components.
+            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+            mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
+        }
+    }
+
+
+
+
+    private void populateAutoComplete() {
+        if (!mayRequestContacts()) {
+            return;
         }
 
-        @Override
-        protected Boolean doInBackground(Void... params) {
-            mAuth.signInWithEmailAndPassword(mEmail, mPassword)
-                .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                    if (task.isSuccessful()) {
-                        // Sign in success, update UI with the signed-in user's information
-                        Log.i(TAG, "signInWithEmail:isComplete?" + task.isComplete());
-                        Log.i(TAG, "userEmail" + mEmail);
-                        onPostExecute(true);
-                    } else {
-                        // If sign in fails, display a message to the user.
-                        Log.w(TAG, "signInWithEmail:failure", task.getException());
-                        Toast toast =  Toast.makeText(LoginActivity.this, "Authentication failed: result =>" + task.getResult(),
-                                Toast.LENGTH_SHORT);
-                        toast.setGravity(Gravity.TOP|Gravity.CENTER, 0, 0);
-                        toast.show();
-                        onPostExecute(false);
-                    }
-                    }
-                });
+        getLoaderManager().initLoader(0, null, this);
+    }
 
-           // TODO: register the new account here.
-            FirebaseUser currentUser = mAuth.getCurrentUser();
-            if ( currentUser == null ) {
-                registerNewUser(mEmail, mPassword);
-            }
+    private boolean mayRequestContacts() {
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
             return true;
         }
 
-        void registerNewUser(final String mEmail, final String mPassword) {
-            mAuth.createUserWithEmailAndPassword(mEmail, mPassword)
-                .addOnCompleteListener(LoginActivity.this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
-                            Log.d(TAG, "createUserWithEmail:success");
-                            FirebaseUser user = mAuth.getCurrentUser();
-                            onPostExecute(true);
-                        } else {
-                            // If sign in fails, display a message to the user.
-                            Log.w(TAG, "createUserWithEmail:failure", task.getException());
-                            Toast.makeText(LoginActivity.this, "Authentication failed.",
-                                    Toast.LENGTH_SHORT).show();
-                            onPostExecute(false);
-                        }
-
-                        // ...
-                    }
-                });
+        if (checkSelfPermission(READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
+            return true;
         }
 
-        @Override
-        protected void onPostExecute(final Boolean success) {
-            mAuthTask = null;
-            showProgress(false);
+        if (shouldShowRequestPermissionRationale(READ_CONTACTS)) {
+            Snackbar.make(mEmailView, R.string.permission_rationale, Snackbar.LENGTH_INDEFINITE)
+                    .setAction(android.R.string.ok, new View.OnClickListener() {
+                        @Override
+                        @TargetApi(Build.VERSION_CODES.M)
+                        public void onClick(View v) {
+                            requestPermissions(new String[]{READ_CONTACTS}, REQUEST_READ_CONTACTS);
+                        }
+                    });
 
-            if (success) {
-                // finish();
-                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                if (user != null) {
-                    System.out.println("USERs ${user}");
-                    // Name, email address, and profile photo Url
-                    String name = user.getDisplayName();
-                    String email = user.getEmail();
-                    Uri photoUrl = user.getPhotoUrl();
+        } else {
+            requestPermissions(new String[] {READ_CONTACTS}, REQUEST_READ_CONTACTS);
+        }
 
-                    // Check if user's email is verified
-                    boolean emailVerified = user.isEmailVerified();
+        return false;
+    }
 
-                    // The user's ID, unique to the Firebase project. Do NOT use this value to
-                    // authenticate with your backend server, if you have one. Use
-                    // FirebaseUser.getToken() instead.
-                    String uid = user.getUid();
-                    Log.i(TAG,"UID: " + uid);
-                    Log.i(TAG,"name: " + name);
-                    Log.i(TAG,"email: " + email);
-
-                    Intent loggedIn = new Intent(LoginActivity.this, MainActivity.class);
-                    if (!name.isEmpty()) {
-                        loggedIn.putExtra("nombre", name);
-                    }
-                    if (!email.isEmpty()) {
-                        loggedIn.putExtra("email", email);
-                    }
-                    startActivity(loggedIn);
-                } else {
-                    Log.i(TAG,"No tengo usuario de firebase: null => " + user);
-                }
-            } else {
-                Log.i(TAG,"La contraseña es incorrecta");
-
-                mPasswordView.setError(getString(R.string.error_incorrect_password));
-                mPasswordView.requestFocus();
+    /**
+     * Callback received when a permissions request has been completed.
+     */
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        if (requestCode == REQUEST_READ_CONTACTS) {
+            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                populateAutoComplete();
             }
         }
-
-        @Override
-        protected void onCancelled() {
-            mAuthTask = null;
-            showProgress(false);
-        }
     }
+
+
+
+
+
 }
 

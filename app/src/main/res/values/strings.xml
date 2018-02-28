@@ -31,4 +31,16 @@
     <string name="contenedor_puesto">Puesto</string>
     <string name="contenedor_cambiado">Cambiado</string>
     <string name="contenedor_retirado">Retirado</string>
+    <string name="activar_notificaciones">Activar Notificaciones</string>
+    <string name="logTokenButton">Token</string>
+    <string name="msg_subscribed">Suscripcion activada</string>
+    <string name="mostrar_notificacion">Mostrar</string>
+
+
+    <string name="default_notification_channel_id" translatable="false">fcm_default_channel</string>
+    <!--
+        This is the name that users will see when interacting with this channel.
+        It should describe the category of notifications that will be sent through this channel
+     -->
+    <string name="default_notification_channel_name" translatable="true">Pedidos</string>
 </resources>

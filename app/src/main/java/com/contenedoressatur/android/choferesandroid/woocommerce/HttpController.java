@@ -2,28 +2,19 @@ package com.contenedoressatur.android.choferesandroid.woocommerce;
 
 import android.os.AsyncTask;
 import android.util.Log;
-import android.widget.Button;
-import android.widget.TextView;
 
-import com.contenedoressatur.android.choferesandroid.Pedido;
-import com.contenedoressatur.android.choferesandroid.R;
 import com.google.android.gms.maps.model.LatLng;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
 
 /**
  * Creado por user el 23/02/2018.
@@ -45,17 +36,22 @@ public class HttpController  {
     }
 
     static public void containerChanged(String orderId) {
-        url = "https://contenedoressatur.es/wp-json/pedidos/v1/cambiado/";
+        url = "https://contenedoressatur.es/wp-json/pedidos/v1/cambiado/adolfo/" + orderId;
         new JSONTask().execute(url);
     }
 
     static public void containerRemoved(String orderId) {
-        url = "https://contenedoressatur.es/wp-json/pedidos/v1/retirado/";
+        url = "https://contenedoressatur.es/wp-json/pedidos/v1/retirado/adolfo/" + orderId;
         new JSONTask().execute(url);
     }
 
     static public void containerPlaced(String orderId) {
         url = "https://contenedoressatur.es/wp-json/pedidos/v1/puesto/adolfo/" + orderId;
+        new JSONTask().execute(url);
+    }
+
+    static public void updateOrderLocationFromMarker(LatLng coords, String orderId) {
+        url = "https://contenedoressatur.es/wp-json/pedidos/v1/updatelocation/" + orderId + "/" + coords.latitude + "/" + coords.longitude;
         new JSONTask().execute(url);
     }
 
@@ -102,8 +98,17 @@ public class HttpController  {
                 }
 
                 String jsonData = buffer.toString();
-                JSONObject dataObject = new JSONObject(jsonData);
-                int orderId = dataObject.getInt("orderId");
+                if (jsonData.length() > 0 ) {
+                    Log.i(TAG, "Response es un String de " + jsonData.length() + " elementos.");
+                    Log.i(TAG, "JSONArray => " + jsonData
+                    );
+                    return connection.getResponseMessage();
+
+                } else {
+                    Log.i(TAG, "Response es un JSONObject => " + jsonData);
+                    JSONObject dataObject = new JSONObject(jsonData);
+                    int orderId = dataObject.getInt("orderId");
+                }
 
 
                 Log.i(TAG, "Response => " + connection.getResponseMessage());

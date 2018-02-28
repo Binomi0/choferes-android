@@ -1,20 +1,13 @@
-package com.contenedoressatur.android.choferesandroid;
+package com.contenedoressatur.android.choferesandroid.Pedidos;
 
-import android.annotation.SuppressLint;
-import android.os.Bundle;
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
-import java.util.TimeZone;
-import java.util.stream.Stream;
 
 /**
  * Created by user on 18/02/2018.
