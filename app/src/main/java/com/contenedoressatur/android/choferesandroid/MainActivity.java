@@ -1,11 +1,15 @@
 package com.contenedoressatur.android.choferesandroid;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.annotation.TargetApi;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
 
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
@@ -19,6 +23,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.net.Uri;
@@ -30,6 +35,8 @@ import com.contenedoressatur.android.choferesandroid.Pedidos.Pedido;
 import com.contenedoressatur.android.choferesandroid.Pedidos.PedidosAdapter;
 import com.contenedoressatur.android.choferesandroid.Pedidos.PedidosController;
 import com.google.firebase.iid.FirebaseInstanceId;
+
+import org.w3c.dom.Text;
 
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -63,6 +70,8 @@ public class MainActivity extends AppCompatActivity  {
     SharedPreferences.Editor myEditor;
     String chofer;
     String email;
+    TextView trabajosPendientes;
+    ImageView logo;
     static final int PICK_CONTACT_REQUEST = 1;  // The request code
 
     @Override
@@ -72,9 +81,15 @@ public class MainActivity extends AppCompatActivity  {
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
 
+        // Cargamos el indicador de progreso de la carga de los datos y los componentes de la vista
+        mProgressView = findViewById(R.id.pedidos_progress);
+        mTextMessage = findViewById(R.id.message);
+        listView = findViewById(R.id.lista_pedidos);
+        trabajosPendientes = findViewById(R.id.trabajos_pendientes);
+        trabajosPendientes.setVisibility(View.INVISIBLE);
         TextView mTextEmail = findViewById(R.id.email);
-
         Bundle parametros = this.getIntent().getExtras();
+        logo = findViewById(R.id.logo);
 
         // Recoger parametros pasados desde loginactivity
         if (parametros != null) {
@@ -94,19 +109,41 @@ public class MainActivity extends AppCompatActivity  {
             toast("No se han cargado pedidos.");
             return;
         }
-        mProgressView = findViewById(R.id.login_progress);
-
-        mTextMessage = findViewById(R.id.message);
-        listView = findViewById(R.id.lista_pedidos);
 
         pedidoArrayList = PedidosController.getPedidos();
         adapter = new PedidosAdapter(this, pedidoArrayList);
         listView.setAdapter(adapter);
 
-
         BottomNavigationView navigation = findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
+        cargarContenidoInicio();
+    }
+
+    /**
+     * Shows the progress UI and hides the login form.
+     */
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
+    private void showProgress(final boolean show) {
+        // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
+        // for very easy animations. If available, use these APIs to fade-in
+        // the progress spinner.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
+            int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
+
+            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+            mProgressView.animate().setDuration(shortAnimTime).alpha(
+                    show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+                }
+            });
+        } else {
+            // The ViewPropertyAnimator APIs are not available, so simply show
+            // and hide the relevant UI components.
+            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+        }
     }
 
     @Override
@@ -125,15 +162,15 @@ public class MainActivity extends AppCompatActivity  {
         };
         listView.setOnItemClickListener(listener);
 
-        Button mostrar = findViewById(R.id.button_notification);
-
-
         // Read app preferences
         myPreferences = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
         checkChoferToken();
     }
 
     private void cargarContenidoPedidos() {
+        trabajosPendientes.setVisibility(View.VISIBLE);
+        logo.setVisibility(View.INVISIBLE);
+
         if (adapter == null) {
             Log.i(TAG,"cargarContenidoPedidos => Adapter es Null");
             adapter = new PedidosAdapter(this, pedidoArrayList);
@@ -145,18 +182,26 @@ public class MainActivity extends AppCompatActivity  {
         if (pedidoArrayList.isEmpty()) {
             PedidosController.cargarTodosPedidos(chofer);
             Log.i(TAG,"cargarContenido() => ArrayList: " + pedidoArrayList.size());
+        } else {
+            Log.i(TAG,"actualizarListadoPedidos => Adapter ok");
+            Log.i(TAG,"listaPedidos => " + pedidoArrayList.size());
+            adapter.clear();
+            adapter.notifyDataSetChanged();
+            adapter.addAll(pedidoArrayList);
         }
 
-        Log.i(TAG,"actualizarListadoPedidos => Adapter ok");
-        Log.i(TAG,"listaPedidos => " + pedidoArrayList.size());
-        adapter.clear();
-        adapter.notifyDataSetChanged();
-        adapter.addAll(pedidoArrayList);
 
+
+
+        showProgress(false);
     }
     private void cargarContenidoInicio() {
+        trabajosPendientes.setVisibility(View.INVISIBLE);
+        logo.setVisibility(View.VISIBLE);
+
         adapter.clear();
         // TODO Añadir contenido seccion home
+        showProgress(false);
     }
 
 

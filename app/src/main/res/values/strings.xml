@@ -15,6 +15,7 @@
     <string name="title_activity_main">MainActivity</string>
     <string name="title_pedidos">Pedidos</string>
     <string name="title_home">Inicio</string>
+    <string name="trabajos_pendientes">Trabajos pendientes</string>
     <string name="user_email">Correo Electrónico</string>
     <string name="listado_de_pedidos">Listado de Pedidos</string>
     <string name="order_address">Dirección de entrega</string>

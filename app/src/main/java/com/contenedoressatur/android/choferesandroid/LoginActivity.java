@@ -261,7 +261,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         @Override
         protected Boolean doInBackground(Void... params) {
-            FirebaseUser currentUser = mAuth.getCurrentUser();
 
             if (choferes.containsKey(mEmail)) {
                 mAuth.signInWithEmailAndPassword(mEmail, mPassword)
@@ -350,9 +349,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                     Log.i(TAG,"No tengo usuario de firebase: null => " + user);
                 }
             } else {
-                Log.i(TAG,"Ha habido un error en la verificación del usuario");
-
-                toast("Ha habido un error en la verificación del usuario");
+                toast("El usuario introducido no es un chófer válido.");
 
                 mPasswordView.setError(getString(R.string.error_incorrect_password));
                 mPasswordView.requestFocus();

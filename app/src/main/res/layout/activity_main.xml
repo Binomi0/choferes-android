@@ -8,7 +8,7 @@
 
     <!-- TODO activar progress bar en main activity -->
     <ProgressBar
-        android:id="@+id/login_progress"
+        android:id="@+id/pedidos_progress"
         style="?android:attr/progressBarStyleLarge"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -30,7 +30,8 @@
             android:gravity="start"
             android:paddingEnd="@dimen/activity_horizontal_margin"
             android:paddingStart="@dimen/activity_horizontal_margin"
-            android:text="@string/title_home" />
+            android:text="@string/title_home"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
 
         <TextView
             android:id="@+id/email"
@@ -40,27 +41,8 @@
             android:gravity="end"
             android:paddingEnd="@dimen/activity_horizontal_margin"
             android:paddingStart="@dimen/activity_horizontal_margin"
-            android:text="@string/user_email" />
-    </RelativeLayout>
-
-    <RelativeLayout
-        android:id="@+id/botones_notificaciones"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/barra_titulo"
-        >
-
-        <Button
-            android:id="@+id/button_notification"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentTop="true"
-            android:onClick="mostrarNotificacion"
-            android:text="@string/mostrar_notificacion" />
-
-
+            android:text="@string/user_email"
+            android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
     </RelativeLayout>
 
     <ListView
@@ -84,6 +66,33 @@
         app:menu="@menu/navigation"
         android:theme="@style/Animation.Design.BottomSheetDialog"/>
 
+    <TextView
+        android:id="@+id/trabajos_pendientes"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:text="@string/trabajos_pendientes"
+        android:textAppearance="@style/TextAppearance.AppCompat.Headline"
+        app:layout_constraintBottom_toTopOf="@+id/lista_pedidos"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/barra_titulo" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center">
+
+        <ImageView
+            android:id="@+id/logo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/app_name"
+            android:src="@mipmap/satur"
+            app:srcCompat="@mipmap/satur" />
+
+    </LinearLayout>
 
 
 </android.support.constraint.ConstraintLayout>
