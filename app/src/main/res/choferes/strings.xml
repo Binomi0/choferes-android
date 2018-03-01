@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <attr name="Rogelio">Rogelio</attr>
+    <attr name="Dario">Dario</attr>
+    <attr name="Alejandro">Alejandro</attr>
+    <attr name="Antonio">Antonio</attr>
+    <attr name="Satur">Satur</attr>
+    <attr name="Adolfo">Adolfo</attr>
+</resources>
