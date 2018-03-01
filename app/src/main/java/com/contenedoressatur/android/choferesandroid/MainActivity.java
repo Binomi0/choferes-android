@@ -288,6 +288,7 @@ public class MainActivity extends AppCompatActivity  {
 //                myEditor = myPreferences.edit();
 //                myEditor.remove("token");
 //                myEditor.apply();
+                updateToken(refreshedToken);
                 return;
             } else {
                 updateToken(refreshedToken);

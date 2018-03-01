@@ -1,5 +1,7 @@
 package com.contenedoressatur.android.choferesandroid.Choferes;
 
+import android.os.Bundle;
+
 import com.contenedoressatur.android.choferesandroid.R;
 
 /**
@@ -12,11 +14,27 @@ import com.contenedoressatur.android.choferesandroid.R;
 
 public class Chofer {
 
-    private static final String[] choferes = { "Adolfo", "Rogelio", "Alejandro", "Dario", "Satur" };
+    private static final Bundle choferes = new Bundle();
+
     private String nombre;
     private int id;
 
     public void Chofer(String nombre) {
+        choferes.putString("adolfo@onrubia.es", "Adolfo");
+        choferes.putString("otro@email.com", "Adolfo1");
+        choferes.putString("otro2@email.com", "Adolfo2");
+        choferes.putString("jose@contenedoressatur.com", "Jose");
+
+        choferes.putString("antoniosatur1@gmail.com", "Antonio");
+        choferes.putString("rogeliosatur@gmail.com", "Rogelio");
+        choferes.putString("contenedoressatur@gmail.com", "Satur");
+        choferes.putString("bernalsalgal@gmail.com", "Alejandro");
+        choferes.putString("resitur9@gmail.com", "Dario");
+
+        if (choferes.containsKey(nombre)) {
+            this.nombre = nombre;
+
+        }
         this.nombre = nombre;
         this.id = this.id + 1;
     }
