@@ -67,6 +67,7 @@ public class MessagingService extends FirebaseMessagingService {
         Intent intent = new Intent(this, MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         intent.putExtra(NotificationData.TEXT, notificationData.getTextMessage());
+        intent.putExtra("chofer", "Adolfo");
 
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_ONE_SHOT);
 
