@@ -16,6 +16,7 @@
     xmlns:map="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/tools"
     android:orientation="vertical">
     <LinearLayout
         android:layout_width="wrap_content"
@@ -25,7 +26,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
+
             >
+
+
             <Button
                 android:id="@+id/contenedor_puesto"
                 android:layout_width="wrap_content"
@@ -36,18 +40,19 @@
                 android:layout_marginTop="8dp"
                 android:layout_marginLeft="8dp"
                 android:layout_marginStart="8dp"
-                android:text="@string/contenedor_puesto" />
+                style="@style/Widget.AppCompat.Button.Colored"
+                android:text="@string/contenedor_puesto"
+                />
 
             <Button
                 android:id="@+id/contenedor_cambiado"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@color/colorPrimaryDark"
-                android:textColor="@color/colorSoft"
                 android:onClick="OnContenedorCambiado"
                 android:layout_marginTop="8dp"
                 android:layout_marginLeft="8dp"
                 android:layout_marginStart="8dp"
+                style="@style/Widget.AppCompat.Button.Colored"
                 android:text="@string/contenedor_cambiado"
                 />
 
@@ -62,6 +67,8 @@
                 android:layout_marginLeft="8dp"
                 android:layout_marginStart="8dp"
                 android:text="@string/contenedor_retirado"
+                style="@style/Widget.AppCompat.Button.Colored"
+
                 />
 
         </LinearLayout>
