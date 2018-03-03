@@ -175,6 +175,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 //
 //
 //    }
+    // TODO revisar mensaje de entrada cuando la contraseña es correcta
 
     @Override
     public void onResume() {

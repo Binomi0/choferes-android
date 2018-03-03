@@ -12,6 +12,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.contenedoressatur.android.choferesandroid.LoginActivity;
 import com.contenedoressatur.android.choferesandroid.R;
@@ -64,7 +65,7 @@ public class MessagingService extends FirebaseMessagingService {
             }
 
             if(remoteMessage.getNotification() != null) {
-                Log.i(TAG,"Notificacion: " + remoteMessage.getNotification());
+                Log.i(TAG,"Notificacion: " + remoteMessage.getNotification().getTitle());
             }
         }
     }
