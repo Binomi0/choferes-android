@@ -6,14 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- TODO activar progress bar en main activity -->
-    <ProgressBar
-        android:id="@+id/pedidos_progress"
-        style="?android:attr/progressBarStyleLarge"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:visibility="gone" />
+
 
     <RelativeLayout
         android:id="@+id/barra_titulo"
@@ -27,8 +20,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="start"
-            android:paddingEnd="@dimen/activity_horizontal_margin"
-            android:paddingStart="@dimen/activity_horizontal_margin"
             android:text="@string/title_home"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
 
@@ -37,8 +28,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="end"
-            android:paddingEnd="@dimen/activity_horizontal_margin"
-            android:paddingStart="@dimen/activity_horizontal_margin"
             android:text="@string/user_email"
             android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
     </RelativeLayout>
@@ -51,11 +40,27 @@
         app:layout_constraintTop_toBottomOf="@+id/barra_titulo"
         android:layout_marginTop="@dimen/activity_toolbar_vertical_margin_list"
         />
+    <!-- TODO activar progress bar en main activity -->
+    <ProgressBar
+        android:id="@+id/pedidos_progress"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:visibility="gone"
+        android:backgroundTint="@color/colorPrimary"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/trabajos_pendientes" />
 
     <RelativeLayout
+        android:id="@+id/relativeLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginBottom="50dp"
+        android:layout_marginBottom="75dp"
+        android:layout_marginEnd="@dimen/activity_horizontal_margin"
+        android:layout_marginRight="@dimen/activity_horizontal_margin"
         app:layout_constraintBottom_toTopOf="@+id/navigation">
 
         <android.support.design.widget.FloatingActionButton
@@ -98,9 +103,10 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/barra_titulo" />
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:orientation="vertical"
         android:gravity="center">
 
         <ImageView
@@ -111,7 +117,24 @@
             android:src="@mipmap/satur"
             app:srcCompat="@mipmap/satur" />
 
-    </LinearLayout>
+        <TextView
+            android:id="@+id/tareas_pendientes"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/logo"
+            android:layout_centerHorizontal="true"
+            android:text="@string/tareas_pendientes"
+            android:textAlignment="center" />
+        <TextView
+            android:id="@+id/tareas_realizadas"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tareas_pendientes"
+            android:layout_centerHorizontal="true"
+            android:text="@string/tareas_realizadas"
+            android:textAlignment="center" />
+
+    </RelativeLayout>
 
 
 </android.support.constraint.ConstraintLayout>

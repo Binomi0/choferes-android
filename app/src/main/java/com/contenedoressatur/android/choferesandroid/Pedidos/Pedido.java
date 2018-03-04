@@ -23,7 +23,7 @@ public class Pedido {
     private String fechaPedido;
     private String status;
 
-    Pedido(String product, Integer id, String address, LatLng coords, String fechaPedido, String status) {
+    public Pedido(String product, Integer id, String address, LatLng coords, String fechaPedido, String status) {
         this.product = product;
         this.orderId = id;
         this.coords = coords;
@@ -64,12 +64,12 @@ public class Pedido {
     private String getFormattedDate(String dateToFormat) {
 
         SimpleDateFormat outputPattern = new SimpleDateFormat("EEEE, d 'de' MMMM 'a las' kk:mm", new Locale("es"));
-        SimpleDateFormat inputPatter = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss.000000", new Locale("es"));
+        SimpleDateFormat inputPattern = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss.000000", new Locale("es"));
 
-        Date date = null;
+        Date date;
         String fecha = null;
         try {
-            date = inputPatter.parse(dateToFormat);
+            date = inputPattern.parse(dateToFormat);
             fecha = outputPattern.format(date);
             Log.i(TAG, "La fecha formateada es" + fecha);
         } catch (ParseException e) {

@@ -17,25 +17,19 @@
     <string name="title_home">Inicio</string>
     <string name="trabajos_pendientes">Trabajos pendientes</string>
     <string name="user_email">Correo Electrónico</string>
-    <string name="listado_de_pedidos">Listado de Pedidos</string>
     <string name="order_address">Dirección de entrega</string>
     <string name="order_product">Nombre del  producto</string>
     <string name="order_id">Nº Pedido</string>
     <string name="order_status">Estado</string>
     <string name="order_date">Fecha</string>
-    <string name="prefijo_fecha_pedido">Pedido el </string>
-    <string name="navigation_home" type="id">navigation_home</string>
     <string name="title_activity_maps">Map</string>
     <string name="move_the_camera">Move Camera</string>
-    <string name="clamp_latlng_reset">RESET</string>
-    <string name="map_not_ready">Cargando Mapa ..</string>
     <string name="contenedor_puesto">Puesto</string>
     <string name="contenedor_cambiado">Cambiado</string>
     <string name="contenedor_retirado">Retirado</string>
-    <string name="activar_notificaciones">Activar Notificaciones</string>
-    <string name="logTokenButton">Token</string>
-    <string name="msg_subscribed">Suscripcion activada</string>
-    <string name="mostrar_notificacion">Mostrar</string>
+    <string name="sin_tareas">Sin Tareas</string>
+    <string name="tareas_pendientes">Pendientes</string>
+    <string name="tareas_realizadas">Realizadas</string>
 
 
     <string name="default_notification_channel_id" translatable="false">fcm_default_channel</string>
@@ -43,5 +37,4 @@
         This is the name that users will see when interacting with this channel.
         It should describe the category of notifications that will be sent through this channel
      -->
-    <string name="default_notification_channel_name" translatable="true">Pedidos</string>
 </resources>

@@ -1,6 +1,7 @@
 package com.contenedoressatur.android.choferesandroid.Pedidos;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
@@ -41,17 +42,19 @@ import java.util.Set;
  * adolfo.onrubia.es
  */
 
-public class PedidosController extends Activity {
+public class PedidosController {
 
     private static final String TAG = PedidosController.class.getSimpleName();
     private static ArrayList<Pedido> pedidos = new ArrayList<>();
-    ListView listView = (ListView) findViewById(R.id.lista_pedidos);
+    private Context context;
+    static PedidosAdapter pedidosAdapter;
 
-    public PedidosController() {
+    public PedidosController(Context context) {
+        this.context = context;
         Log.i("PedidoController", "El estatus del controlador es ");
     }
 
-    static public ArrayList<Pedido> cargarTodosPedidos(String chofer) {
+    public ArrayList<Pedido> cargarTodosPedidos(String chofer) {
         String request = "https://contenedoressatur.es/wp-json/pedidos/v1/chofer/" + chofer;
         new JSONTask().execute(request);
         return pedidos;
@@ -65,12 +68,14 @@ public class PedidosController extends Activity {
         return pedidos.get(index);
     }
 
-    static private void parseResponseFromRequest(ArrayList<Pedido> response) {
+    private void parseResponseFromRequest(ArrayList<Pedido> response) {
 //        Set<Pedido> mySet = new ArraySet<>();
 
         if ( response != null ) {
             Log.i(TAG,"El array contiene " + response.size() + " elementos");
-//
+            pedidosAdapter = new PedidosAdapter(this.context, response);
+            pedidosAdapter.notifyDataSetChanged();
+            pedidosAdapter.addAll(response);
             if (pedidos.equals(response) ) {
                 Log.i(TAG,"El pedido es igual a la respuesta");
 
@@ -88,7 +93,7 @@ public class PedidosController extends Activity {
         }
     }
 
-    static class JSONTask extends AsyncTask<String, String, ArrayList<Pedido>> {
+    private class JSONTask extends AsyncTask<String, String, ArrayList<Pedido>> {
         @Override
         protected void onCancelled() {
             super.onCancelled();

@@ -112,25 +112,17 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                     Log.i(TAG, "onAuthStateChanged:signed_in:" + currentUser.getUid());
                     String email = currentUser.getEmail();
                     Intent loggedIn = new Intent(LoginActivity.this, MainActivity.class);
-
                     if (!email.isEmpty()) {
-
                         loggedIn.putExtra("email", email);
                     }
 
                     if (choferes.containsKey(currentUser.getEmail())) {
                         Log.i(TAG, "userAuthed => Es un chofer");
-                        loggedIn.putExtra("chofer", choferes.getString(currentUser.getEmail()));
-                        loggedIn.putExtra("email", currentUser.getEmail());
                         startActivity(loggedIn);
                     } else {
                         Log.i(TAG, "El usuario no es un chofer");
                     }
-
-//                    mAuth.signOut();
-
                 } else {
-
                     // User is signed out
                     Log.i(TAG, "onAuthStateChanged:signed_out");
                 }
@@ -175,6 +167,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 //
 //
 //    }
+
+
     // TODO revisar mensaje de entrada cuando la contraseña es correcta
 
     @Override

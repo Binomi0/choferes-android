@@ -1,8 +1,9 @@
 package com.contenedoressatur.android.choferesandroid.Choferes;
 
-import android.os.Bundle;
+import android.os.CountDownTimer;
 
-import com.contenedoressatur.android.choferesandroid.R;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Creado por user el 23/02/2018.
@@ -14,40 +15,102 @@ import com.contenedoressatur.android.choferesandroid.R;
 
 public class Chofer {
 
-    private static final Bundle choferes = new Bundle();
+    private static final Map<String, String> choferes = new HashMap<>();
 
-    private String nombre;
-    private int id;
+    public String nombre;
+    private String email;
+    private Map<String, String> tareas = new HashMap<>();
+    public int tareasPendientes;
+    public int tareasCompletadas;
+    private Boolean ocupado;
+    public long tiempoOcupado;
+    private CountDownTimer countDownTimer;
+    private static final int intervalo = 60000;
 
-    public void Chofer(String nombre) {
-        choferes.putString("adolfo@onrubia.es", "Adolfo");
-        choferes.putString("otro@email.com", "Adolfo1");
-        choferes.putString("otro2@email.com", "Adolfo2");
-        choferes.putString("jose@contenedoressatur.com", "Jose");
+    public Chofer(String newEmail) {
+        choferes.put("adolfo@onrubia.es", "Adolfo");
+        choferes.put("otro@email.com", "Adolfo1");
+        choferes.put("otro2@email.com", "Adolfo2");
+        choferes.put("jose@contenedoressatur.com", "Jose");
 
-        choferes.putString("antoniosatur1@gmail.com", "Antonio");
-        choferes.putString("rogeliosatur@gmail.com", "Rogelio");
-        choferes.putString("contenedoressatur@gmail.com", "Satur");
-        choferes.putString("bernalsalgal@gmail.com", "Alejandro");
-        choferes.putString("resitur9@gmail.com", "Dario");
+        choferes.put("antoniosatur1@gmail.com", "Antonio");
+        choferes.put("rogeliosatur@gmail.com", "Rogelio");
+        choferes.put("contenedoressatur@gmail.com", "Satur");
+        choferes.put("bernalsalgal@gmail.com", "Alejandro");
+        choferes.put("resitur9@gmail.com", "Dario");
 
-        if (choferes.containsKey(nombre)) {
-            this.nombre = nombre;
-
+        if (choferes.containsKey(newEmail)) {
+            email = newEmail;
         }
-        this.nombre = nombre;
-        this.id = this.id + 1;
+        email = newEmail;
+        nombre = choferes.get(email);
+        tareasCompletadas = 0;
+        ocupado = false;
+        tiempoOcupado = 0;
+        tareasPendientes = 0;
     }
 
-    public String getNombre() {
-        return nombre;
+
+    public void setTareas_pendientes(String nuevaTarea, String direccion, String newOrderId) {
+        Boolean alicante = direccion.contains("Alicante");
+        Boolean elche = direccion.contains("Elche");
+        Boolean santapola = direccion.contains("Santa Pola");
+
+        if (!tareas.containsKey(newOrderId)) {
+            if (santapola) {
+                tiempoOcupado += 2700000;
+            } else if (elche) {
+                tiempoOcupado += 3600000;
+            } else if (alicante) {
+                tiempoOcupado += 5400000;
+            }
+            tareas.put(newOrderId, nuevaTarea);
+            iniciarCuentaAtras();
+        }
+        tareasPendientes = tareas.size();
+        ocupado = true;
     }
 
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
+    public void setTareas_realizadas(String completedId) {
+        if (tareas.containsKey(completedId)) {
+            tareas.remove(String.valueOf(completedId));
+            tareasCompletadas += 1;
+            if (tareas.size() == 0) {
+                tiempoOcupado = 0;
+                countDownTimer.cancel();
+                ocupado = false;
+            }
+        }
     }
 
-    public int getId() {
-        return id;
+    private void iniciarCuentaAtras() {
+        countDownTimer = new CountDownTimer(tiempoOcupado, intervalo) {
+            @Override
+            public void onTick(long l) {
+                tiempoOcupado = l;
+            }
+
+            @Override
+            public void onFinish() {
+                tiempoOcupado = 0;
+            }
+        };
+        countDownTimer.start();
+    }
+
+    /**
+     *
+     * @return
+     * True -> el chofer esta ocupado
+     * False -> el chofer está libre
+     */
+    public Boolean getOcupado() {
+        return ocupado;
+    }
+
+
+    public String getEmail() {
+        return email;
     }
 }
+
