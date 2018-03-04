@@ -6,12 +6,9 @@ import com.contenedoressatur.android.choferesandroid.Pedidos.Pedido;
 import com.contenedoressatur.android.choferesandroid.Pedidos.PedidosController;
 import com.contenedoressatur.android.choferesandroid.R;
 import com.contenedoressatur.android.choferesandroid.woocommerce.HttpController;
-import com.google.android.gms.maps.CameraUpdate;
-import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
 import com.google.android.gms.maps.GoogleMap.OnCameraIdleListener;
-import com.google.android.gms.maps.GoogleMap.OnMarkerDragListener;
 import com.google.android.gms.maps.GoogleMap.OnMyLocationButtonClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMyLocationClickListener;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -22,21 +19,17 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.GoogleMap.OnInfoWindowLongClickListener;
-import com.google.firebase.iid.FirebaseInstanceId;
 
 import android.Manifest;
-import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.graphics.Rect;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -71,11 +64,11 @@ public class MapsActivity extends AppCompatActivity
     private static final String TAG = MapsActivity.class.getSimpleName();
     TextView mCameraTextView;
     private static Pedido pedido;
-    private Chofer chofer;
     private GPSTracker gps;
-    private static final LatLng base = new LatLng(38.2109726, -0.5749218);
     private static Marker markerUbicacionContenedor;
     private static LatLng coordsUbicacionContenedor;
+    String chofer;
+
     /**
      * Flag indicating whether a requested permission has been denied after returning in
      * {@link #onRequestPermissionsResult(int, String[], int[])}.
@@ -109,11 +102,10 @@ public class MapsActivity extends AppCompatActivity
         if (parametros != null) {
             Log.i(TAG, "[onCreate] Bundle: " + parametros.getInt("index"));
             int index = parametros.getInt("index");
-            String email = parametros.getString("email");
+            chofer = parametros.getString("chofer");
             pedido = PedidosController.getPedido(index);
             setTitle("Pedido " + pedido.getOrderId());
             coordsUbicacionContenedor = pedido.getCoords();
-            chofer = new Chofer(email);
             configureButtons();
 
         } else {
@@ -226,8 +218,6 @@ public class MapsActivity extends AppCompatActivity
 
     @Override
     public void onCameraIdle() {
-//        ubicacionContenedorActualizada = markerUbicacionContenedor.getPosition();
-//        markerUbicacionContenedor.setPosition(ubicacionContenedorActualizada);
         mCameraTextView.setText(pedido.getAddress());
     }
 
@@ -291,20 +281,17 @@ public class MapsActivity extends AppCompatActivity
 
 
     void realiarTareasPostPuesta(String orderId) {
-        HttpController.containerPlaced(orderId, chofer.nombre);
-        chofer.setTareas_realizadas(orderId);
+        HttpController.containerPlaced(orderId, chofer);
         toast("Actualizando pedido, por favor espera...");
     }
 
     void realiarTareasPostRetirada(String orderId) {
-        HttpController.containerRemoved(orderId, chofer.nombre);
-        chofer.setTareas_realizadas(orderId);
+        HttpController.containerRemoved(orderId, chofer);
         toast("Actualizando pedido, por favor espera...");
     }
 
     void realiarTareasPostCambio(String orderId) {
-        HttpController.containerChanged(orderId, chofer.nombre);
-        chofer.setTareas_realizadas(orderId);
+        HttpController.containerChanged(orderId, chofer);
         toast("Actualizando pedido, por favor espera...");
     }
 

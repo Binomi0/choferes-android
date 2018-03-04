@@ -25,7 +25,7 @@ import com.google.firebase.messaging.RemoteMessage;
  * <p>
  * Todos los derechos reservados.
  *
- * @adolfoonrubia adolfo.onrubia.es
+ * #adolfoonrubia adolfo.onrubia.es
  */
 
 public class MessagingService extends FirebaseMessagingService {
@@ -102,6 +102,7 @@ public class MessagingService extends FirebaseMessagingService {
         try {
 
             notificationBuilder = new NotificationCompat.Builder(this)
+                    .setChannelId(channelId)
                     .setSmallIcon(icon)
                     .setLargeIcon(logo)
                     .setContentTitle(notificationData.getTitle())

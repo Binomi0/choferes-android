@@ -2,10 +2,10 @@ package com.contenedoressatur.android.choferesandroid.MapsPackage;
 
 /**
  * Creado por user el 22/02/2018.
- * <p>
+ *
  * Todos los derechos reservados.
  *
- * @adolfoonrubia adolfo.onrubia.es
+ * #adolfoonrubia adolfo.onrubia.es
  */
 
 import android.annotation.SuppressLint;
@@ -45,7 +45,7 @@ public class GPSTracker extends Service implements LocationListener {
     private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 10; // 10 meters
 
     // The minimum time between updates in milliseconds
-    private static final long MIN_TIME_BW_UPDATES = 1000 * 60 * 1; // 1 minute
+    private static final long MIN_TIME_BW_UPDATES = 1000 * 60; // 1 minute
 
     // Declaring a Location Manager
     protected LocationManager locationManager;
@@ -56,7 +56,7 @@ public class GPSTracker extends Service implements LocationListener {
     }
 
     @SuppressLint("MissingPermission")
-    public Location getLocation() {
+    public void getLocation() {
         try {
             locationManager = (LocationManager) mContext
                     .getSystemService(LOCATION_SERVICE);
@@ -114,20 +114,8 @@ public class GPSTracker extends Service implements LocationListener {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-        return location;
     }
 
-
-    /**
-     * Stop using GPS listener
-     * Calling this function will stop using GPS in your app
-     * */
-    public void stopUsingGPS(){
-        if(locationManager != null){
-            locationManager.removeUpdates(GPSTracker.this);
-        }
-    }
 
     /**
      * Function to get latitude

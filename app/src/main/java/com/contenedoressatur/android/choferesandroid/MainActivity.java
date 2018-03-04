@@ -70,7 +70,6 @@ import javax.net.ssl.HttpsURLConnection;
 public class MainActivity extends AppCompatActivity  {
 
     private static final String TAG = MainActivity.class.getSimpleName();
-    static final int PICK_CONTACT_REQUEST = 1;  // The request code
 
     TextView mTextMessage;
     ListView listView;
@@ -178,7 +177,7 @@ public class MainActivity extends AppCompatActivity  {
             public void onItemClick(AdapterView<?> listView, View view, int i, long l) {
                 Intent mapaPedido = new Intent(MainActivity.this, MapsActivity.class);
                 mapaPedido.putExtra("index", i);
-                mapaPedido.putExtra("email", chofer.nombre);
+                mapaPedido.putExtra("chofer", chofer.nombre);
                 startActivity(mapaPedido);
             }
         };
@@ -295,7 +294,6 @@ public class MainActivity extends AppCompatActivity  {
 
     static public class UpdateTokenTask extends AsyncTask<String, String, Boolean> {
         String request = "https://contenedoressatur.es/wp-json/choferes/v1/update_token/";
-        BufferedReader reader = null;
 
         @Override
         protected Boolean doInBackground(String... strings) {
@@ -308,19 +306,8 @@ public class MainActivity extends AppCompatActivity  {
 //                conn.setRequestProperty("Accept", "application/json");
                 conn.connect();
 
-                InputStream stream = conn.getInputStream();
-
-                reader = new BufferedReader(new InputStreamReader(stream));
-
-                StringBuilder buffer = new StringBuilder();
-
-                String jsonData = buffer.toString();
-                if (jsonData.length() > 0){
-                    Log.i(TAG, "Response: " + jsonData);
-                    return true;
-                }
-
-                return false;
+                int responseCode = conn.getResponseCode();
+                return responseCode < 400;
 
             } catch (MalformedURLException e) {
                 e.printStackTrace();
@@ -330,7 +317,13 @@ public class MainActivity extends AppCompatActivity  {
                 e.printStackTrace();
             }
 
-            return true;
+            return false;
+        }
+
+        @Override
+        protected void onPostExecute(Boolean success) {
+            super.onPostExecute(success);
+
         }
     }
 

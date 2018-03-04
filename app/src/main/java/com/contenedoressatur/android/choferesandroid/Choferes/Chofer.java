@@ -10,7 +10,7 @@ import java.util.Map;
  * <p>
  * Todos los derechos reservados.
  *
- * @adolfoonrubia adolfo.onrubia.es
+ * #adolfoonrubia adolfo.onrubia.es
  */
 
 public class Chofer {
@@ -26,6 +26,7 @@ public class Chofer {
     public long tiempoOcupado;
     private CountDownTimer countDownTimer;
     private static final int intervalo = 60000;
+
 
     public Chofer(String newEmail) {
         choferes.put("adolfo@onrubia.es", "Adolfo");
