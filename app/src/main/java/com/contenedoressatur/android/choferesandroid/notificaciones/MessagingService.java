@@ -1,6 +1,7 @@
 package com.contenedoressatur.android.choferesandroid.notificaciones;
 
 import android.annotation.TargetApi;
+import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -31,10 +32,14 @@ import com.google.firebase.messaging.RemoteMessage;
 public class MessagingService extends FirebaseMessagingService {
 
     private static final String TAG = MessagingService.class.getSimpleName();
+    private NotificationUtils mNotificationUtils;
 
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
         super.onMessageReceived(remoteMessage);
+
+        mNotificationUtils = new NotificationUtils(this);
+
 
         String image = remoteMessage.getNotification().getIcon();
         if (image == null) {
@@ -43,6 +48,9 @@ public class MessagingService extends FirebaseMessagingService {
         String title = remoteMessage.getNotification().getTitle();
         String text = remoteMessage.getNotification().getBody();
         String sound = remoteMessage.getNotification().getSound();
+
+        Notification.Builder nb = mNotificationUtils.getPedidosChannelNotification(title, text);
+        mNotificationUtils.getManager().notify(101,nb.build());
 
         int id = 0;
         Object obj = remoteMessage.getData().get("id");
