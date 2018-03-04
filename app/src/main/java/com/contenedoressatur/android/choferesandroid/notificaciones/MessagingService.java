@@ -13,9 +13,7 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.support.v4.app.NotificationCompat;
-import android.support.v4.content.ContextCompat;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.contenedoressatur.android.choferesandroid.LoginActivity;
 import com.contenedoressatur.android.choferesandroid.R;
@@ -100,7 +98,7 @@ public class MessagingService extends FirebaseMessagingService {
 
         NotificationCompat.Builder notificationBuilder = null;
         int icon = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP ? R.drawable.truck_trailer: R.mipmap.satur;
-        Bitmap logo = Bitmap.createBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.satur));
+        Bitmap logo = Bitmap.createBitmap(BitmapFactory.decodeResource(getResources(), R.mipmap.logosatur_48dp));
         try {
 
             notificationBuilder = new NotificationCompat.Builder(this)
@@ -123,12 +121,7 @@ public class MessagingService extends FirebaseMessagingService {
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         if (notificationManager != null) {
             if (notificationBuilder != null) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) createChannel(notificationManager);
-                notificationBuilder = new NotificationCompat.Builder(this, "PEDIDOS").setSmallIcon(android.R.drawable.stat_sys_download).setColor
-                        (ContextCompat.getColor(this, R.color.colorPrimary)).setContentTitle("Titulo Notificacion").setContentText("Descripcion y contenido de la notificación");
                 notificationManager.notify(notificationData.getId(), notificationBuilder.build());
-
-//                notificationManager.notify(notificationData.getId(), notificationBuilder.build());
             }
         } else {
             Log.i(TAG, "No se ha podido enviar la notificación");
