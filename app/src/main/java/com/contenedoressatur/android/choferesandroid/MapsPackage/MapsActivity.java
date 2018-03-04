@@ -28,6 +28,7 @@ import android.Manifest;
 import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.Rect;
@@ -96,9 +97,9 @@ public class MapsActivity extends AppCompatActivity
         setContentView(R.layout.activity_maps);
         gps = new GPSTracker(MapsActivity.this);
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
 
         SupportMapFragment mapFragment =
                 (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
@@ -204,6 +205,9 @@ public class MapsActivity extends AppCompatActivity
             mMap.setMyLocationEnabled(true);
             toast("Localización encontrada - \nLat: " + gps.getLatitude() + "\nLong: " + gps.getLongitude());
         } else {
+            Intent gpsOptionsIntent = new Intent(
+                    android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+            startActivity(gpsOptionsIntent);
             gps.getLocation();
             gps.showSettingsAlert();
         }
@@ -287,19 +291,19 @@ public class MapsActivity extends AppCompatActivity
 
 
     void realiarTareasPostPuesta(String orderId) {
-        HttpController.containerPlaced(orderId);
+        HttpController.containerPlaced(orderId, chofer.nombre);
         chofer.setTareas_realizadas(orderId);
         toast("Actualizando pedido, por favor espera...");
     }
 
     void realiarTareasPostRetirada(String orderId) {
-        HttpController.containerRemoved(orderId);
+        HttpController.containerRemoved(orderId, chofer.nombre);
         chofer.setTareas_realizadas(orderId);
         toast("Actualizando pedido, por favor espera...");
     }
 
     void realiarTareasPostCambio(String orderId) {
-        HttpController.containerChanged(orderId);
+        HttpController.containerChanged(orderId, chofer.nombre);
         chofer.setTareas_realizadas(orderId);
         toast("Actualizando pedido, por favor espera...");
     }

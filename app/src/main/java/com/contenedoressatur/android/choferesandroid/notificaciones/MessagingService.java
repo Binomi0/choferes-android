@@ -1,5 +1,7 @@
 package com.contenedoressatur.android.choferesandroid.notificaciones;
 
+import android.annotation.TargetApi;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -11,6 +13,7 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -70,6 +73,19 @@ public class MessagingService extends FirebaseMessagingService {
         }
     }
 
+    @TargetApi(26)
+    private void createChannel(NotificationManager notificationManager) {
+        String name = "FileDownload";
+        String description = "Notifications for download status";
+        int importance = NotificationManager.IMPORTANCE_DEFAULT;
+
+        NotificationChannel mChannel = new NotificationChannel(name, name, importance);
+        mChannel.setDescription(description);
+        mChannel.enableLights(true);
+        mChannel.setLightColor(Color.BLUE);
+        notificationManager.createNotificationChannel(mChannel);
+    }
+
     private void sendNotification(NotificationData notificationData) {
 
         Intent intent = new Intent(this, LoginActivity.class);
@@ -77,6 +93,7 @@ public class MessagingService extends FirebaseMessagingService {
         intent.putExtra(NotificationData.TEXT, notificationData.getTextMessage());
 
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_ONE_SHOT);
+
 
         String channelId = getString(R.string.default_notification_channel_id);
         Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
@@ -97,13 +114,22 @@ public class MessagingService extends FirebaseMessagingService {
                     .setLights(Color.RED, 3000, 3000)
                     .setContentIntent(pendingIntent);
 
+
+
         } catch (UnsupportedOperationException e) {
             e.fillInStackTrace();
         }
 
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         if (notificationManager != null) {
-            notificationManager.notify(notificationData.getId(), notificationBuilder != null ? notificationBuilder.build() : null);
+            if (notificationBuilder != null) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) createChannel(notificationManager);
+                notificationBuilder = new NotificationCompat.Builder(this, "PEDIDOS").setSmallIcon(android.R.drawable.stat_sys_download).setColor
+                        (ContextCompat.getColor(this, R.color.colorPrimary)).setContentTitle("Titulo Notificacion").setContentText("Descripcion y contenido de la notificación");
+                notificationManager.notify(notificationData.getId(), notificationBuilder.build());
+
+//                notificationManager.notify(notificationData.getId(), notificationBuilder.build());
+            }
         } else {
             Log.i(TAG, "No se ha podido enviar la notificación");
         }

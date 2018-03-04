@@ -35,18 +35,18 @@ public class HttpController  {
         type = type;
     }
 
-    static public void containerChanged(String orderId) {
-        url = "https://contenedoressatur.es/wp-json/pedidos/v1/cambiado/adolfo/" + orderId;
+    static public void containerChanged(String orderId, String chofer) {
+        url = "https://contenedoressatur.es/wp-json/pedidos/v1/cambiado/" + chofer + "/" + orderId;
         new JSONTask().execute(url);
     }
 
-    static public void containerRemoved(String orderId) {
-        url = "https://contenedoressatur.es/wp-json/pedidos/v1/retirado/adolfo/" + orderId;
+    static public void containerRemoved(String orderId, String chofer) {
+        url = "https://contenedoressatur.es/wp-json/pedidos/v1/retirado/" + chofer + "/" + orderId;
         new JSONTask().execute(url);
     }
 
-    static public void containerPlaced(String orderId) {
-        url = "https://contenedoressatur.es/wp-json/pedidos/v1/puesto/adolfo/" + orderId;
+    static public void containerPlaced(String orderId, String chofer) {
+        url = "https://contenedoressatur.es/wp-json/pedidos/v1/puesto/" + chofer + "/" + orderId;
         new JSONTask().execute(url);
     }
 

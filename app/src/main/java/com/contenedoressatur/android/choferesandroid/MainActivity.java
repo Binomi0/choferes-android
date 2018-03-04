@@ -97,7 +97,6 @@ public class MainActivity extends AppCompatActivity  {
         mTextMessage = findViewById(R.id.message);
         listView = findViewById(R.id.lista_pedidos);
         trabajosPendientes = findViewById(R.id.trabajos_pendientes);
-        trabajosPendientes.setVisibility(View.INVISIBLE);
         TextView mTextEmail = findViewById(R.id.email);
         Bundle parametros = this.getIntent().getExtras();
         logo = findViewById(R.id.logo);
